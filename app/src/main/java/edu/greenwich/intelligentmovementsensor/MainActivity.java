@@ -1,0 +1,175 @@
+package edu.greenwich.intelligentmovementsensor;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.widget.TextView;
+
+public class MainActivity extends Activity implements SensorEventListener, LocationListener {
+
+    private SensorManager mSensorManager = null;
+    private LocationManager mLocationManager = null;
+
+    private Sensor mAccelerometer = null;
+    private Sensor mGyroscope = null;
+    private Sensor mGravitometer = null;
+    private Sensor mCompass = null;
+
+    private Location mLocation = null;
+    float[] lastAccelerometer;
+    float[] lastCompass;
+
+    String accelData = "Accelerometer Data";
+    String compassData = "Compass Data";
+    String gyroData = "Gyro Data";
+    String gravData = "Gravity Data";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // initialize the sensor and location manager
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        // set type to each sensor
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        mGravitometer = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+        mCompass = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+        // get data from the sensors
+        mSensorManager.registerListener(this, mAccelerometer, mSensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mGyroscope, mSensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mGravitometer, mSensorManager.SENSOR_STATUS_ACCURACY_MEDIUM); // MEDIUM is less power consumption
+        mSensorManager.registerListener(this, mCompass, mSensorManager.SENSOR_DELAY_NORMAL);
+
+
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.NO_REQUIREMENT);
+        criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
+        String bestProvider = mLocationManager.getBestProvider(criteria, true);
+
+        try {
+            mLocationManager.requestLocationUpdates(bestProvider, 50, 0, this);
+        }
+        catch (SecurityException se){}
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+
+        TextView textBox = (TextView) findViewById(R.id.dataTxt);
+
+        StringBuilder text = new StringBuilder(accelData.toString()).append("\n");
+        text.append(compassData).append("\n");
+        text.append(gyroData).append("\n");
+        text.append(gravData).append("\n");
+
+        if (mLocation != null) {
+            text.append(
+                    String.format("GPS = (%.3f, %.3f) @ (%.2f meters up)",
+                            mLocation.getLatitude(),
+                            mLocation.getLongitude(),
+                            mLocation.getAltitude())).append("\n");
+        }
+
+
+        // compute rotation matrix
+        float rotation[] = new float[9];
+        float identity[] = new float[9];
+        if (lastAccelerometer != null && lastCompass != null) {
+            boolean gotRotation = SensorManager.getRotationMatrix(rotation,
+                    identity, lastAccelerometer, lastCompass);
+            if (gotRotation) {
+                float cameraRotation[] = new float[9];
+                // remap such that the camera is pointing straight down the Y
+                // axis
+                SensorManager.remapCoordinateSystem(rotation,
+                        SensorManager.AXIS_X, SensorManager.AXIS_Z,
+                        cameraRotation);
+
+                // orientation vector
+                float orientation[] = new float[3];
+                SensorManager.getOrientation(cameraRotation, orientation);
+
+                text.append(String.format("Orientation (%.3f, %.3f, %.3f)", Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2]))).append("\n");
+
+            }
+        }
+
+        textBox.setText(text);
+
+        StringBuilder msg = new StringBuilder(sensorEvent.sensor.getName())
+                .append(" ");
+        for (float value : sensorEvent.values) {
+            msg.append("[").append(String.format("%.3f", value)).append("]");
+        }
+
+        switch (sensorEvent.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                lastAccelerometer = sensorEvent.values.clone();
+                accelData = msg.toString();
+                break;
+            case Sensor.TYPE_GYROSCOPE:
+                gyroData = msg.toString();
+                break;
+            case Sensor.TYPE_GRAVITY:
+                gravData = msg.toString();
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                lastCompass = sensorEvent.values.clone();
+                compassData = msg.toString();
+                break;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLocation = location;
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //startService(new Intent(MainActivity.this,BackgroundService.class));
+        try {
+            mLocationManager.removeUpdates(this);
+        }
+        catch (SecurityException se){}
+        //mSensorManager.unregisterListener(this);
+    }
+
+}
