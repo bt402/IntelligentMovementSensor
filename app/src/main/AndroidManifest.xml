@@ -16,7 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:windowSoftInputMode="adjustPan" android:name=".MainActivity"/>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".OrientationSensorExampleActivity"/>
+        <activity android:windowSoftInputMode="adjustPan" android:name=".GraphView"/>
         <activity android:windowSoftInputMode="adjustPan" android:name=".TabsActivity" />
         <service android:name=".BackgroundService"/>
     </application>

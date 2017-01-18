@@ -2,7 +2,9 @@ package edu.greenwich.intelligentmovementsensor;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -14,6 +16,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements SensorEventListener, LocationListener {
@@ -66,6 +72,54 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
             mLocationManager.requestLocationUpdates(bestProvider, 50, 0, this);
         }
         catch (SecurityException se){}
+
+        final Button recordBtn = (Button) findViewById(R.id.button);
+        final TextView recordLbl = (TextView) findViewById(R.id.recordLbl);
+
+        recordBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (recordBtn.getText().equals("Record Data")){
+
+                    // Create a dialog to ask for a movement name
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                    // Add a editable text area
+                    EditText inputTxt = new EditText(MainActivity.this);
+                    inputTxt.setHint("Enter the movement name here"); // set placeholder for text area
+
+                    // Use layout to add the text area to the dialog
+                    LinearLayout layout =new LinearLayout(MainActivity.this);
+                    layout.setOrientation(LinearLayout.VERTICAL);
+
+                    alertDialog.setTitle("Name the movement"); // Dialog Title
+                    layout.addView(inputTxt); // add the text area to the layout
+                    alertDialog.setView(layout); // now add the layout to the dialog box
+
+                    alertDialog.setPositiveButton("Record", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // what to do when Save is clicked
+                            recordBtn.setText("Stop");
+                            recordLbl.setText("Recording...");
+                        }
+                    });
+
+                    alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            // Canceled.
+                        }
+                    });
+
+                    alertDialog.show();  //<-- See This!
+                }
+                else if (recordBtn.getText().equals("Stop")){
+                    System.out.println("Stopped");
+                    recordBtn.setText("Record Data");
+                    recordLbl.setText("");
+                }
+
+            }
+        });
     }
 
     @Override
