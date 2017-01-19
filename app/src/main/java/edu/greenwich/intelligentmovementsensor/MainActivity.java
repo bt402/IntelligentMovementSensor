@@ -85,7 +85,7 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
                     // Create a dialog to ask for a movement name
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                     // Add a editable text area
-                    EditText inputTxt = new EditText(MainActivity.this);
+                    final EditText inputTxt = new EditText(MainActivity.this);
                     inputTxt.setHint("Enter the movement name here"); // set placeholder for text area
 
                     // Use layout to add the text area to the dialog
@@ -101,6 +101,9 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
                             // what to do when Save is clicked
                             recordBtn.setText("Stop");
                             recordLbl.setText("Recording...");
+                            BackgroundService.fileName = inputTxt.getText().toString();
+                            startService(new Intent(MainActivity.this,BackgroundService.class));
+                            //sensorMgr.unregisterListener(this);
                         }
                     });
 

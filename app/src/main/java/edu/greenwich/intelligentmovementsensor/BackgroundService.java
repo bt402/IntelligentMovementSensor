@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
@@ -42,6 +43,9 @@ public class BackgroundService extends Service implements SensorEventListener {
     String gyroData = "Gyro Data";
     String gravData = "Gravity Data";
 
+    // allow static access to filename so that the dialog can change it's name
+    public static String fileName = "test";
+
     static boolean isRunning = false;
 
     @Override
@@ -66,6 +70,12 @@ public class BackgroundService extends Service implements SensorEventListener {
                         .setAutoCancel(true);
 
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("Stop", true);
+        Bundle stopBundle = new Bundle();
+        stopBundle.putBoolean("Stop", true);//This is the value I want to pass
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_action_cancel_small, "Stop", pendingIntent).build();
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 
@@ -76,14 +86,16 @@ public class BackgroundService extends Service implements SensorEventListener {
                         0,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
+        mBuilder.addAction(action);
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(1, mBuilder.build());
     }
 
+
     public void recordData(String data) throws IOException {
-        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "sensors" + ".csv");
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + fileName + ".csv");
         file.createNewFile();
         if(file.exists())
         {
