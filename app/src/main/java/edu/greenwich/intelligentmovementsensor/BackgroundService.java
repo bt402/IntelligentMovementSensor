@@ -3,7 +3,6 @@ package edu.greenwich.intelligentmovementsensor;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -12,12 +11,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,7 +57,26 @@ public class BackgroundService extends Service implements SensorEventListener {
 
     public void showNotification(String smallText, String bigText){
         isRunning = true;
-        NotificationCompat.Builder mBuilder =
+
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 1, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+        .setSmallIcon(R.drawable.grelogo)
+        .setColor(Color.rgb(0,82,155))
+        .setContentTitle("Recording Data in Progress")
+        .setProgress(0,0,true)
+                .setOngoing(false)
+        .addAction(R.drawable.ic_action_cancel_small, "Cancel", pIntent)
+        .setAutoCancel(true);
+
+        // Create Notification Manager
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Build Notification with Notification Manager
+        notificationManager.notify(0, mBuilder.build());
+
+        /*NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder( getApplicationContext() )
                         .setSmallIcon(R.drawable.grelogo)
                         .setColor(Color.rgb(0,82,155))
@@ -71,8 +87,6 @@ public class BackgroundService extends Service implements SensorEventListener {
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("Stop", true);
-        Bundle stopBundle = new Bundle();
-        stopBundle.putBoolean("Stop", true);//This is the value I want to pass
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_action_cancel_small, "Stop", pendingIntent).build();
@@ -90,7 +104,7 @@ public class BackgroundService extends Service implements SensorEventListener {
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, mBuilder.build());
+        mNotificationManager.notify(1, mBuilder.build());*/
     }
 
 
@@ -99,9 +113,9 @@ public class BackgroundService extends Service implements SensorEventListener {
         file.createNewFile();
         if(file.exists())
         {
-                OutputStream fo = new FileOutputStream(file, true);
-                fo.write(data.getBytes());
-                fo.close();
+            OutputStream fo = new FileOutputStream(file, true);
+            fo.write(data.getBytes());
+            fo.close();
         }
     }
 
@@ -109,7 +123,7 @@ public class BackgroundService extends Service implements SensorEventListener {
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (isRunning) {
             // grab the values and timestamp -- off the main thread
-            new SensorEventLoggerTask().execute(sensorEvent);
+            //new SensorEventLoggerTask().execute(sensorEvent);
             StringBuilder text = new StringBuilder(accelData.toString()).append("\n");
             text.append(compassData).append("\n");
             text.append(gyroData).append("\n");
@@ -170,7 +184,6 @@ public class BackgroundService extends Service implements SensorEventListener {
                     break;
             }
             final SensorEventListener sensorEventListener = this;
-            showNotification(accelData, text.toString());
             final Intent intent = new Intent(this, MainActivity.class);
             // stop the service
             Handler handler = new Handler();
@@ -180,25 +193,11 @@ public class BackgroundService extends Service implements SensorEventListener {
                     mSensorManager.unregisterListener(sensorEventListener);
                     stopSelf();
                     stopService(intent);
+                    NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    notificationManager.cancel(0);
                     System.exit(0);
                 }
-            }, 20000);
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(20000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    isRunning = false;
-                    mSensorManager.unregisterListener(sensorEventListener);
-                    stopSelf();
-                    stopService(intent);
-                    System.exit(0);
-                }
-            });
+            }, 2000);
         }
     }
 
@@ -230,7 +229,7 @@ public class BackgroundService extends Service implements SensorEventListener {
         mSensorManager.registerListener(this, mGravitometer, mSensorManager.SENSOR_STATUS_ACCURACY_MEDIUM); // MEDIUM is less power consumption
         mSensorManager.registerListener(this, mCompass, mSensorManager.SENSOR_DELAY_NORMAL);
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private class SensorEventLoggerTask extends

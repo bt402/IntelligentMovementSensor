@@ -22,17 +22,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements SensorEventListener, LocationListener {
+public class MainActivity extends Activity implements SensorEventListener {
 
     private SensorManager mSensorManager = null;
-    private LocationManager mLocationManager = null;
 
     private Sensor mAccelerometer = null;
     private Sensor mGyroscope = null;
     private Sensor mGravitometer = null;
     private Sensor mCompass = null;
 
-    private Location mLocation = null;
     float[] lastAccelerometer;
     float[] lastCompass;
 
@@ -48,7 +46,6 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
 
         // initialize the sensor and location manager
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         // set type to each sensor
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -66,12 +63,6 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.NO_REQUIREMENT);
         criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
-        String bestProvider = mLocationManager.getBestProvider(criteria, true);
-
-        try {
-            mLocationManager.requestLocationUpdates(bestProvider, 50, 0, this);
-        }
-        catch (SecurityException se){}
 
         final Button recordBtn = (Button) findViewById(R.id.button);
         final TextView recordLbl = (TextView) findViewById(R.id.recordLbl);
@@ -89,7 +80,7 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
                     inputTxt.setHint("Enter the movement name here"); // set placeholder for text area
 
                     // Use layout to add the text area to the dialog
-                    LinearLayout layout =new LinearLayout(MainActivity.this);
+                    LinearLayout layout = new LinearLayout(MainActivity.this);
                     layout.setOrientation(LinearLayout.VERTICAL);
 
                     alertDialog.setTitle("Name the movement"); // Dialog Title
@@ -134,14 +125,6 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
         text.append(compassData).append("\n");
         text.append(gyroData).append("\n");
         text.append(gravData).append("\n");
-
-        if (mLocation != null) {
-            text.append(
-                    String.format("GPS = (%.3f, %.3f) @ (%.2f meters up)",
-                            mLocation.getLatitude(),
-                            mLocation.getLongitude(),
-                            mLocation.getAltitude())).append("\n");
-        }
 
 
         // compute rotation matrix
@@ -199,33 +182,9 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
     }
 
     @Override
-    public void onLocationChanged(Location location) {
-        mLocation = location;
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         //startService(new Intent(MainActivity.this,BackgroundService.class));
-        try {
-            mLocationManager.removeUpdates(this);
-        }
-        catch (SecurityException se){}
         //mSensorManager.unregisterListener(this);
     }
 
