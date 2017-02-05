@@ -3,7 +3,10 @@ package edu.greenwich.intelligentmovementsensor;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -12,12 +15,16 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.view.Gravity;
+import android.widget.RemoteViews;
+import android.widget.Toast;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -47,7 +54,7 @@ public class BackgroundService extends Service implements SensorEventListener {
 
     @Override
     public void onCreate() {
-       showNotification(text, "");
+       showNotification();
     }
 
     @Override
@@ -55,56 +62,40 @@ public class BackgroundService extends Service implements SensorEventListener {
         return mBinder;
     }
 
-    public void showNotification(String smallText, String bigText){
+    public void showNotification(){
         isRunning = true;
 
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 1, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent cancelIntent = new Intent(this, ClosingActivity.class);
+        cancelIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        cancelIntent.putExtra("Cancelled", true);
+
+        PendingIntent cancelPendingIntent = PendingIntent.getActivity(this, 1, cancelIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+
+        Bitmap icon = BitmapFactory.decodeResource(getResources(),
+                R.drawable.ic_action_cancel);
+
+        RemoteViews cancelOnLock = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification_layout);
+        cancelOnLock.setImageViewBitmap(R.id.notification_icon, icon);
+        cancelOnLock.setTextViewText(R.id.notification_text, "Cancel Recording Data");
+        cancelOnLock.setOnClickPendingIntent(R.drawable.ic_action_cancel, cancelPendingIntent);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.grelogo)
         .setColor(Color.rgb(0,82,155))
         .setContentTitle("Recording Data in Progress")
         .setProgress(0,0,true)
-                .setOngoing(false)
-        .addAction(R.drawable.ic_action_cancel_small, "Cancel", pIntent)
-        .setAutoCancel(true);
+        .addAction(R.drawable.ic_action_cancel_small, "Cancel", cancelPendingIntent)
+        .setContent(cancelOnLock)
+        .setAutoCancel(false);
+
 
         // Create Notification Manager
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // Build Notification with Notification Manager
         notificationManager.notify(0, mBuilder.build());
 
-        /*NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder( getApplicationContext() )
-                        .setSmallIcon(R.drawable.grelogo)
-                        .setColor(Color.rgb(0,82,155))
-                        .setContentTitle("Sensor Data")
-                        .setContentText(smallText)
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText))
-                        .setAutoCancel(true);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("Stop", true);
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_action_cancel_small, "Stop", pendingIntent).build();
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-
-        stackBuilder.addParentStack(MainActivity.class);
-        stackBuilder.addNextIntent(intent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.addAction(action);
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, mBuilder.build());*/
     }
 
 
@@ -157,13 +148,13 @@ public class BackgroundService extends Service implements SensorEventListener {
             for (float value : sensorEvent.values) {
                 msg.append("[").append(String.format("%.3f", value)).append("]");
                 try {
-                    recordData(sensorEvent.sensor.getName() + ", " + String.format("%.3f", value) + ", ");
+                   recordData(sensorEvent.sensor.getName() + ", " + String.format("%.3f", value) + ", ");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
             try {
-                recordData("\r\n");
+               recordData("\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -183,21 +174,6 @@ public class BackgroundService extends Service implements SensorEventListener {
                     compassData = msg.toString();
                     break;
             }
-            final SensorEventListener sensorEventListener = this;
-            final Intent intent = new Intent(this, MainActivity.class);
-            // stop the service
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                public void run() {
-                    isRunning = false;
-                    mSensorManager.unregisterListener(sensorEventListener);
-                    stopSelf();
-                    stopService(intent);
-                    NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    notificationManager.cancel(0);
-                    System.exit(0);
-                }
-            }, 2000);
         }
     }
 

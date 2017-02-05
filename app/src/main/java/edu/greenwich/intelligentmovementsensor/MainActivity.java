@@ -3,6 +3,7 @@ package edu.greenwich.intelligentmovementsensor;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +22,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.io.IOException;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
@@ -43,6 +46,15 @@ public class MainActivity extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent notificationIntent = getIntent();
+        // check if cancelled button on notification has been pressed
+        boolean cancelled = notificationIntent.getBooleanExtra("Cancelled", false);
+
+        if (cancelled){
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.cancel(0);
+        }
 
         // initialize the sensor and location manager
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
@@ -93,7 +105,12 @@ public class MainActivity extends Activity implements SensorEventListener {
                             recordBtn.setText("Stop");
                             recordLbl.setText("Recording...");
                             BackgroundService.fileName = inputTxt.getText().toString();
-                            startService(new Intent(MainActivity.this,BackgroundService.class));
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startService(new Intent(MainActivity.this,BackgroundService.class));
+                                }
+                            }).start();
                             //sensorMgr.unregisterListener(this);
                         }
                     });
