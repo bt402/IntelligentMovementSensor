@@ -3,15 +3,18 @@ package edu.greenwich.intelligentmovementsensor;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,13 +37,26 @@ public class MainActivity extends Activity implements SensorEventListener {
     float[] lastAccelerometer;
     float[] lastCompass;
 
+    BroadcastReceiver receiver;
+
     String accelData = "Accelerometer Data";
     String compassData = "Compass Data";
     String gyroData = "Gyro Data";
     String gravData = "Gravity Data";
 
-    ListView lv;
-    Model[] modelItems;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
+                new IntentFilter(BackgroundDetector.RESULT)
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        super.onStop();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,17 +72,18 @@ public class MainActivity extends Activity implements SensorEventListener {
             notificationManager.cancel(0);
         }
 
-        SensorManager oSM = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        List<Sensor> sensorsList = oSM.getSensorList(Sensor.TYPE_ALL);
-        modelItems = new Model[sensorsList.size()];
-        lv = (ListView) findViewById(R.id.listView1);
-        for (int i = 0; i < sensorsList.size(); i++){
-            System.out.println(sensorsList.get(i));
-            modelItems[i] = new Model(sensorsList.get(i).getName(), false);
-        }
+        startService(new Intent(MainActivity.this,BackgroundDetector.class));
 
-        CustomAdapter adapter = new CustomAdapter(this, modelItems);
-        lv.setAdapter(adapter);
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String s = intent.getStringExtra(BackgroundDetector.MESSAGE);
+                // do something here.
+                TextView peakView = (TextView) findViewById(R.id.peakTxt);
+                peakView.setText(s);
+            }
+        };
+
         // initialize the sensor and location manager
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
@@ -144,10 +161,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         });
     }
 
+
+
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 
-       // TextView textBox = (TextView) findViewById(R.id.dataTxt);
+        TextView textBox = (TextView) findViewById(R.id.dataTxt);
 
         StringBuilder text = new StringBuilder(accelData.toString()).append("\n");
         text.append(compassData).append("\n");
@@ -178,7 +198,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             }
         }
 
-        //textBox.setText(text);
+        textBox.setText(text);
 
         StringBuilder msg = new StringBuilder(sensorEvent.sensor.getName())
                 .append(" ");
