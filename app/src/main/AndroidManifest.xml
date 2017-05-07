@@ -17,6 +17,7 @@
         <activity android:windowSoftInputMode="adjustPan" android:name=".TabsActivity" />
         <service android:name=".BackgroundService"/>
         <service android:name=".BackgroundDetector"/>
+        <service android:name=".BackgroundSensorRecord"/>
         <activity android:windowSoftInputMode="adjustPan" android:name=".ClosingActivity"/>
     </application>
 </manifest>

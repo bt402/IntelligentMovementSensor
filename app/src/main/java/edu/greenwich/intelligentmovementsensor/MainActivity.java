@@ -14,6 +14,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +23,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +48,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     String compassData = "Compass Data";
     String gyroData = "Gyro Data";
     String gravData = "Gravity Data";
+
+    String fileName = "";
 
     @Override
     protected void onStart() {
@@ -132,11 +139,13 @@ public class MainActivity extends Activity implements SensorEventListener {
                             // what to do when Save is clicked
                             recordBtn.setText("Stop");
                             recordLbl.setText("Recording...");
-                            BackgroundService.fileName = inputTxt.getText().toString();
+                            //BackgroundSensorRecord.fileName = inputTxt.getText().toString();
+                            fileName = inputTxt.getText().toString();
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    startService(new Intent(MainActivity.this,BackgroundService.class));
+                                    BackgroundSensorRecord.context = getApplicationContext();
+                                    startService(new Intent(MainActivity.this,BackgroundSensorRecord.class));
                                 }
                             }).start();
                             //sensorMgr.unregisterListener(this);
@@ -153,15 +162,34 @@ public class MainActivity extends Activity implements SensorEventListener {
                 }
                 else if (recordBtn.getText().equals("Stop")){
                     System.out.println("Stopped");
+                    try {
+                        recordData(BackgroundSensorRecord.dataList);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     recordBtn.setText("Record Data");
                     recordLbl.setText("");
+                    System.exit(0);
                 }
 
             }
         });
     }
 
-
+    public void recordData(ArrayList<String> data) throws IOException {
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + fileName + ".csv");
+        file.createNewFile();
+        OutputStream fo = null;
+        if(file.exists())
+        {
+            fo = new FileOutputStream(file, true);
+            for (int i = 0; i < data.size(); i++){
+                fo.write(data.get(i).getBytes());
+                fo.write("\n".getBytes());
+            }
+        }
+        fo.close();
+    }
 
 
     @Override
