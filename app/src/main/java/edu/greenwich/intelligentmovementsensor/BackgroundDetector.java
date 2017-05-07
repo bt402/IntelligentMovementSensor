@@ -107,6 +107,16 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     }
 
     private void checkSpikes(ArrayList<Float> x, ArrayList<Float> y, ArrayList<Float> z){
+            for (int i = 0; i < x.size(); i++){
+                float absoluteSum = Math.abs(x.get(i)) + Math.abs(y.get(i)) + Math.abs(z.get(i));
+                System.out.println("Absolute sum: " + absoluteSum);
+                if (absoluteSum > 25) {
+                    sendResult("Spike occured with value of " + absoluteSum);
+                }
+            }
+    }
+
+    private void checkSpikes(ArrayList<Float> x, ArrayList<Float> y, ArrayList<Float> z, int a){
         ArrayList<Float> xSpikes = new ArrayList<>();
         ArrayList<Float> ySpikes = new ArrayList<>();
         ArrayList<Float> zSpikes = new ArrayList<>();
