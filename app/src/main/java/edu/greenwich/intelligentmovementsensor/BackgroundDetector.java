@@ -14,9 +14,12 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import de.dfki.mycbr.core.similarity.AmalgamationFct;
 
 public class BackgroundDetector extends Service implements SensorEventListener{
 
@@ -36,6 +39,11 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
     private final IBinder mBinder = new LocalBinder();
 
+    static Recommender recommender;
+    static String inputAmalgamation;
+    String inputMovement;
+    String numberOfCases;
+
     @Override
     public void onCreate() {
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
@@ -43,6 +51,15 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         mSensorManager.registerListener(this, mAccelerometer, mSensorManager.SENSOR_DELAY_NORMAL);
         broadcaster = LocalBroadcastManager.getInstance(this);
         lastUpdate = System.currentTimeMillis();
+
+        recommender = new Recommender();
+        recommender.loadengine();
+        inputAmalgamation = recommender.myConcept.getActiveAmalgamFct().getName();
+
+        inputMovement = "Freefall"; // Freefall, Bunce, Impact, Still
+        numberOfCases = "5";
+
+        CheckforAmalgamSelection();
     }
 
     static final public String RESULT = "edu.greenwich.intelligentmovementsensor.BackgroundDetector.REQUEST_PROCESSED";
@@ -110,9 +127,14 @@ public class BackgroundDetector extends Service implements SensorEventListener{
             for (int i = 0; i < x.size(); i++){
                 float absoluteSum = Math.abs(x.get(i)) + Math.abs(y.get(i)) + Math.abs(z.get(i));
                 System.out.println("Absolute sum: " + absoluteSum);
-                if (absoluteSum > 25) {
+                /*if (absoluteSum > 25) {
                     sendResult("Spike occured with value of " + absoluteSum);
-                }
+                }*/
+
+                String inputPeak = "" + absoluteSum;
+                String[] split = recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases)).split(",");
+                //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
+                sendResult(split[1]);
             }
     }
 
@@ -175,6 +197,18 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         sendResult("There was " + xSpikes.size() + " X spikes, " + ySpikes.size() + " Y spikes, " + zSpikes.size() + " Z spikes");
     }
 
+    public static void CheckforAmalgamSelection() {
+
+        List<AmalgamationFct> liste = recommender.myConcept.getAvailableAmalgamFcts();
+
+        for (int i = 0; i < liste.size(); i++) {
+
+            if ((liste.get(i).getName()).equals(inputAmalgamation)) {
+
+                recommender.myConcept.setActiveAmalgamFct(liste.get(i));
+            }
+        }
+    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
