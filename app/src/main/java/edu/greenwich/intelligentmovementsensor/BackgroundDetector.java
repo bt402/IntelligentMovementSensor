@@ -7,11 +7,16 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +48,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     static String inputAmalgamation;
     String inputMovement;
     String numberOfCases;
+    String walking = null;
 
     @Override
     public void onCreate() {
@@ -56,7 +62,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         recommender.loadengine();
         inputAmalgamation = recommender.myConcept.getActiveAmalgamFct().getName();
 
-        inputMovement = "Freefall"; // Freefall, Bunce, Impact, Still
+        inputMovement = "Walk"; // Freefall, Bunce, Impact, Still, Flat, Walk
         numberOfCases = "5";
 
         CheckforAmalgamSelection();
@@ -124,6 +130,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     }
 
     private void checkSpikes(ArrayList<Float> x, ArrayList<Float> y, ArrayList<Float> z){
+        long lastUpdate = System.currentTimeMillis();
             for (int i = 0; i < x.size(); i++){
                 float absoluteSum = Math.abs(x.get(i)) + Math.abs(y.get(i)) + Math.abs(z.get(i));
                 System.out.println("Absolute sum: " + absoluteSum);
@@ -135,7 +142,27 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                 String[] split = recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases)).split(",");
                 //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
                 sendResult(split[1]);
+                if (split[1] == "Walk"){
+                    long curTime = System.currentTimeMillis();
+                    long timeElapsed = curTime - lastUpdate;
+                    try {
+                        recordData("Walked for " + timeElapsed);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+    }
+
+    public void recordData(String data) throws IOException {
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "walking" + ".csv");
+        file.createNewFile();
+        if(file.exists())
+        {
+            OutputStream fo = new FileOutputStream(file, true);
+            fo.write(data.getBytes());
+            fo.close();
+        }
     }
 
     private void checkSpikes(ArrayList<Float> x, ArrayList<Float> y, ArrayList<Float> z, int a){
