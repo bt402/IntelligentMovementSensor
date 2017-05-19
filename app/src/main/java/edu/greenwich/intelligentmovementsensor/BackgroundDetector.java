@@ -62,7 +62,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         recommender.loadengine();
         inputAmalgamation = recommender.myConcept.getActiveAmalgamFct().getName();
 
-        inputMovement = "Walk"; // Freefall, Bunce, Impact, Still, Flat, Walk
+        inputMovement = "Still"; // Freefall, Bunce, Impact, Still, Flat, Walk
         numberOfCases = "5";
 
         CheckforAmalgamSelection();
@@ -142,7 +142,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                 String[] split = recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases)).split(",");
                 //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
                 sendResult(split[1]);
-                if (split[1] == "Walk" || split[3] == "Walk" || split[5] == "Walk" || split[7] == "Walk"){
+                /*if (split[1].equals(" MovementName=Walk")){
                     long curTime = System.currentTimeMillis();
                     long timeElapsed = curTime - lastUpdate;
                     try {
@@ -150,7 +150,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
+                }*/
             }
     }
 
