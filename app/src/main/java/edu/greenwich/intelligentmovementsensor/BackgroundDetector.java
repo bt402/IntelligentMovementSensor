@@ -142,7 +142,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                 String[] split = recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases)).split(",");
                 //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
                 sendResult(split[1]);
-                if (split[1] == "Walk"){
+                if (split[1] == "Walk" || split[3] == "Walk" || split[5] == "Walk" || split[7] == "Walk"){
                     long curTime = System.currentTimeMillis();
                     long timeElapsed = curTime - lastUpdate;
                     try {
