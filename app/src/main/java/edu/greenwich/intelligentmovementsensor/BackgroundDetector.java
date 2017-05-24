@@ -131,27 +131,22 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
     private void checkSpikes(ArrayList<Float> x, ArrayList<Float> y, ArrayList<Float> z){
         long lastUpdate = System.currentTimeMillis();
+        double sum = 0.0;
+        double average;
             for (int i = 0; i < x.size(); i++){
                 float absoluteSum = Math.abs(x.get(i)) + Math.abs(y.get(i)) + Math.abs(z.get(i));
-                System.out.println("Absolute sum: " + absoluteSum);
+                sum += absoluteSum;
+            }
+            average = sum / x.size();
+        System.out.println("Absolute sum average: " + average);
                 /*if (absoluteSum > 25) {
                     sendResult("Spike occured with value of " + absoluteSum);
                 }*/
 
-                String inputPeak = "" + absoluteSum;
-                String[] split = recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases)).split(",");
-                //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
-                sendResult(split[1]);
-                /*if (split[1].equals(" MovementName=Walk")){
-                    long curTime = System.currentTimeMillis();
-                    long timeElapsed = curTime - lastUpdate;
-                    try {
-                        recordData("Walked for " + timeElapsed);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }*/
-            }
+        String inputPeak = "" + average;
+        String[] split = recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases)).split(",");
+        //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
+        sendResult(split[1]);
     }
 
     public void recordData(String data) throws IOException {
