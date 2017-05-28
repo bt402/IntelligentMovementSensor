@@ -42,7 +42,7 @@ public class Recommender {
         myConcept = rec.getConceptByID(engine.getConceptName());
     }
 
-    public String solveOuery(String name, Float peak, Integer numberofcases) {
+    public String solveOuery(String name, Float accelerometerPeak, Float gravitometerPeak, Float gyroPeak, Integer numberofcases) {
 
         String answer="";
         // create a new retrieval
@@ -56,9 +56,14 @@ public class Recommender {
         query.addAttribute(moveDesc,moveDesc.getAttribute(name));
 
         // Insert values into the query: Float Description
-        FloatDesc peakDesc = (FloatDesc) myConcept.getAllAttributeDescs().get("Peak");
+        FloatDesc accPeakDesc = (FloatDesc) myConcept.getAllAttributeDescs().get("AccelerometerPeak");
+        FloatDesc gravPeakDesc = (FloatDesc) myConcept.getAllAttributeDescs().get("GravitometerPeak");
+        FloatDesc gyroPeakDesc = (FloatDesc) myConcept.getAllAttributeDescs().get("GyroPeak");
+
         try {
-            query.addAttribute(peakDesc,peakDesc.getAttribute(peak));
+            query.addAttribute(accPeakDesc,accPeakDesc.getAttribute(accelerometerPeak));
+            query.addAttribute(gravPeakDesc, gravPeakDesc.getAttribute(gravitometerPeak));
+            query.addAttribute(gyroPeakDesc, gyroPeakDesc.getAttribute(gyroPeak));
         } catch (ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

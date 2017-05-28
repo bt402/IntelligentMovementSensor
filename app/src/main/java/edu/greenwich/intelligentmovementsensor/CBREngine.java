@@ -23,7 +23,7 @@ public class CBREngine {
 
     /* project specific: NewExampleProject*/
     // name of the project file
-    private static String projectName = "MovementProject.prj";
+    private static String projectName = "MovementDetection.prj";
     // name of the central concept
     private static String conceptName = "Movement";
     // name of the csv containing the instances
