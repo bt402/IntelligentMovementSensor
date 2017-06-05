@@ -37,15 +37,15 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
     ArrayList<Float> accXAxisValues = new ArrayList<>();
     ArrayList<Float> accYAxisValues = new ArrayList<>();
-    ArrayList<Float> accZzAxisValues = new ArrayList<>();
+    ArrayList<Float> accZAxisValues = new ArrayList<>();
 
     ArrayList<Float> gravXAxisValues = new ArrayList<>();
     ArrayList<Float> gravYAxisValues = new ArrayList<>();
-    ArrayList<Float> gravZzAxisValues = new ArrayList<>();
+    ArrayList<Float> gravZAxisValues = new ArrayList<>();
 
     ArrayList<Float> gyroXAxisValues = new ArrayList<>();
     ArrayList<Float> gyroYAxisValues = new ArrayList<>();
-    ArrayList<Float> gyroZzAxisValues = new ArrayList<>();
+    ArrayList<Float> gyroZAxisValues = new ArrayList<>();
 
 
 
@@ -78,7 +78,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         recommender.loadengine();
         inputAmalgamation = recommender.myConcept.getActiveAmalgamFct().getName();
 
-        inputMovement = "Still"; // Freefall, Bunce, Impact, Still, Flat, Walk
+        inputMovement = "_unknown_"; // Freefall, Bunce, Impact, Still, Flat, Walk
         numberOfCases = "5";
 
         CheckforAmalgamSelection();
@@ -109,17 +109,17 @@ public class BackgroundDetector extends Service implements SensorEventListener{
             case Sensor.TYPE_ACCELEROMETER:
                 accXAxisValues.add(event.values[0]);
                 accYAxisValues.add(event.values[1]);
-                accZzAxisValues.add(event.values[2]);
+                accZAxisValues.add(event.values[2]);
                 break;
             case Sensor.TYPE_GYROSCOPE:
                 gyroXAxisValues.add(event.values[0]);
                 gyroYAxisValues.add(event.values[1]);
-                gyroZzAxisValues.add(event.values[2]);
+                gyroZAxisValues.add(event.values[2]);
                 break;
             case Sensor.TYPE_GRAVITY:
                 gravXAxisValues.add(event.values[0]);
                 gravYAxisValues.add(event.values[1]);
-                gravZzAxisValues.add(event.values[2]);
+                gravZAxisValues.add(event.values[2]);
                 break;
            /* case Sensor.TYPE_ROTATION_VECTOR:
                 lastRotation = event.values.clone();
@@ -133,20 +133,20 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         if ((curTime - lastUpdate) > DELAY){ // only reads data twice per second
             lastUpdate = curTime;
             //System.out.println("Hello every 5 seconds");
-            checkSpikes(accXAxisValues, accYAxisValues, accZzAxisValues,
-                    gravXAxisValues, gravYAxisValues, gravZzAxisValues,
-                    gyroXAxisValues, gyroYAxisValues, gyroZzAxisValues);
+            checkSpikes(accXAxisValues, accYAxisValues, accZAxisValues,
+                    gravXAxisValues, gravYAxisValues, gravZAxisValues,
+                    gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
             accXAxisValues = new ArrayList<>();
             accYAxisValues = new ArrayList<>();
-            accZzAxisValues = new ArrayList<>();
+            accZAxisValues = new ArrayList<>();
 
             gravXAxisValues = new ArrayList<>();
             gravYAxisValues = new ArrayList<>();
-            gravZzAxisValues = new ArrayList<>();
+            gravZAxisValues = new ArrayList<>();
 
             gyroXAxisValues = new ArrayList<>();
             gyroYAxisValues = new ArrayList<>();
-            gyroZzAxisValues = new ArrayList<>();
+            gyroZAxisValues = new ArrayList<>();
         }
 
         /*new Thread() {
@@ -176,38 +176,44 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     }
 
     private void checkSpikes(ArrayList<Float> accXAxisValues, ArrayList<Float> accYAxisValues, ArrayList<Float> accZzAxisValues,
-                             ArrayList<Float> gyroXAxisValues, ArrayList<Float> gyroYAxisValues, ArrayList<Float> gyroZAxisValues,
-                             ArrayList<Float> gravXAxisValues, ArrayList<Float> gravYAxisValues, ArrayList<Float> gravZAxisValues){
+                             ArrayList<Float> gravXAxisValues, ArrayList<Float> gravYAxisValues, ArrayList<Float> gravZAxisValues,
+                             ArrayList<Float> gyroXAxisValues, ArrayList<Float> gyroYAxisValues, ArrayList<Float> gyroZAxisValues){
         long lastUpdate = System.currentTimeMillis();
         double sum = 0.0;
         double average;
+        int count = 0;
             for (int i = 0; i < accXAxisValues.size(); i++){
-                float absoluteSum = Math.abs(accXAxisValues.get(i)) + Math.abs(accYAxisValues.get(i)) + Math.abs(accZzAxisValues.get(i));
+                float absoluteSum = Math.abs(accXAxisValues.get(i) + accYAxisValues.get(i) + accZzAxisValues.get(i));
                 sum += absoluteSum;
+                count ++;
             }
-            average = sum / accXAxisValues.size();
+            average = sum / count;
         System.out.println("Absolute sum accelerometer average: " + average);
         String accInputPeak = "" + average;
 
-        sum = 0.0;
-        average = 0.0;
+        double sum2 = 0.0;
+        double average2 = 0.0;
+        int count2 = 0;
         for (int i = 0; i < gravXAxisValues.size(); i++){
-            float absoluteSum = Math.abs(gravXAxisValues.get(i)) + Math.abs(gravYAxisValues.get(i)) + Math.abs(gravZAxisValues.get(i));
-            sum += absoluteSum;
+            float absoluteSum = Math.abs(gravXAxisValues.get(i) + gravYAxisValues.get(i) + gravZAxisValues.get(i));
+            sum2 += absoluteSum;
+            count2 ++;
         }
-        average = sum / gravXAxisValues.size();
-        System.out.println("Absolute sum gravitometer average: " + average);
-        String gravInputPeak = "" + average;
+        average2 = sum2 / count2;
+        System.out.println("Absolute sum gravitometer average: " + average2);
+        String gravInputPeak = "" + average2;
 
-        sum = 0.0;
-        average = 0.0;
+        double sum3 = 0.0;
+        double average3 = 0.0;
+        int count3 = 0;
         for (int i = 0; i < gyroXAxisValues.size(); i++){
-            float absoluteSum = Math.abs(gyroXAxisValues.get(i)) + Math.abs(gyroYAxisValues.get(i)) + Math.abs(gyroZAxisValues.get(i));
-            sum += absoluteSum;
+            float absoluteSum = Math.abs(gyroXAxisValues.get(i) + gyroYAxisValues.get(i) + gyroZAxisValues.get(i));
+            sum3 += absoluteSum;
+            count3 ++;
         }
-        average = sum / gravXAxisValues.size();
-        System.out.println("Absolute sum gyroscope average: " + average);
-        String gyroInputPeak = "" + average;
+        average3 = sum3 / count3;
+        System.out.println("Absolute sum gyroscope average: " + average3);
+        String gyroInputPeak = "" + average3;
 
         String[] split = recommender.solveOuery(inputMovement,Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak), Integer.valueOf(numberOfCases)).split(",");
         //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
