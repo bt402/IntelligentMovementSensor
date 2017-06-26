@@ -15,12 +15,12 @@ import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -28,7 +28,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
@@ -91,6 +90,8 @@ public class MainActivity extends Activity implements SensorEventListener {
             }
         };
 
+        MovementNotification movementNotification = new MovementNotification(this);
+
         // initialize the sensor and location manager
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
@@ -111,10 +112,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         criteria.setAccuracy(Criteria.NO_REQUIREMENT);
         criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
 
-        final Button recordBtn = (Button) findViewById(R.id.button);
         final TextView recordLbl = (TextView) findViewById(R.id.recordLbl);
 
-        recordBtn.setOnClickListener(new View.OnClickListener() {
+        /*recordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -173,8 +173,9 @@ public class MainActivity extends Activity implements SensorEventListener {
                 }
 
             }
-        });
+        });*/
     }
+
 
     public void recordData(ArrayList<String> data) throws IOException {
         File file = new File(Environment.getExternalStorageDirectory() + File.separator + fileName + ".csv");

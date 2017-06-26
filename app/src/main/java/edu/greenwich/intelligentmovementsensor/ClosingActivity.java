@@ -11,7 +11,8 @@ public class ClosingActivity extends Activity {
     public void onCreate(Bundle savedBundleInstance){
         super.onCreate(savedBundleInstance);
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(0);
-        System.exit(0);
+        //notificationManager.cancel(0);
+        //System.exit(0);
+        System.out.println("Yes");
     }
 }

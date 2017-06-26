@@ -11,7 +11,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,8 +20,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import de.dfki.mycbr.core.similarity.AmalgamationFct;
 
@@ -34,6 +31,8 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     private Sensor mGravitometer = null;
 
     float[] accSensorVals;
+    float[] gravSensorVals;
+    float[] gyroSensorVals;
 
     ArrayList<Float> accXAxisValues = new ArrayList<>();
     ArrayList<Float> accYAxisValues = new ArrayList<>();
@@ -49,7 +48,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
 
 
-    static final int DELAY = 500;
+    static final int DELAY = 1500;
     long lastUpdate;
 
     LocalBroadcastManager broadcaster;
@@ -100,26 +99,28 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        /*if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             accSensorVals = lowPass(event.values.clone(), accSensorVals);
-        }
-
+        }*/
 
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
-                accXAxisValues.add(event.values[0]);
-                accYAxisValues.add(event.values[1]);
-                accZAxisValues.add(event.values[2]);
+                accSensorVals = lowPass(event.values.clone(), accSensorVals);
+                accXAxisValues.add(accSensorVals[0]);
+                accYAxisValues.add(accSensorVals[1]);
+                accZAxisValues.add(accSensorVals[2]);
                 break;
             case Sensor.TYPE_GYROSCOPE:
+                //gyroSensorVals = lowPass(event.values.clone(), gyroSensorVals);
                 gyroXAxisValues.add(event.values[0]);
                 gyroYAxisValues.add(event.values[1]);
                 gyroZAxisValues.add(event.values[2]);
                 break;
             case Sensor.TYPE_GRAVITY:
-                gravXAxisValues.add(event.values[0]);
-                gravYAxisValues.add(event.values[1]);
-                gravZAxisValues.add(event.values[2]);
+                gravSensorVals = lowPass(event.values.clone(), gravSensorVals);
+                gravXAxisValues.add(gravSensorVals[0]);
+                gravYAxisValues.add(gravSensorVals[1]);
+                gravZAxisValues.add(gravSensorVals[2]);
                 break;
            /* case Sensor.TYPE_ROTATION_VECTOR:
                 lastRotation = event.values.clone();
@@ -192,7 +193,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         String accInputPeak = "" + average;
 
         double sum2 = 0.0;
-        double average2 = 0.0;
+        double average2;
         int count2 = 0;
         for (int i = 0; i < gravXAxisValues.size(); i++){
             float absoluteSum = Math.abs(gravXAxisValues.get(i) + gravYAxisValues.get(i) + gravZAxisValues.get(i));
@@ -204,7 +205,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         String gravInputPeak = "" + average2;
 
         double sum3 = 0.0;
-        double average3 = 0.0;
+        double average3;
         int count3 = 0;
         for (int i = 0; i < gyroXAxisValues.size(); i++){
             float absoluteSum = Math.abs(gyroXAxisValues.get(i) + gyroYAxisValues.get(i) + gyroZAxisValues.get(i));
@@ -217,7 +218,8 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
         String[] split = recommender.solveOuery(inputMovement,Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak), Integer.valueOf(numberOfCases)).split(",");
         //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
-        sendResult(split[2]);
+        if (split.length > 1)
+            sendResult(split[2]);
     }
 
     public void recordData(String data) throws IOException {
