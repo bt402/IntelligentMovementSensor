@@ -32,7 +32,6 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
     float[] accSensorVals;
     float[] gravSensorVals;
-    float[] gyroSensorVals;
 
     ArrayList<Float> accXAxisValues = new ArrayList<>();
     ArrayList<Float> accYAxisValues = new ArrayList<>();

@@ -15,6 +15,7 @@
         <activity android:windowSoftInputMode="adjustPan" android:name=".MainActivity"/>
         <activity android:windowSoftInputMode="adjustPan" android:name=".GraphView"/>
         <activity android:windowSoftInputMode="adjustPan" android:name=".TabsActivity" />
+        <activity android:windowSoftInputMode="adjustPan" android:name=".AddNewMovement"/>
         <service android:name=".BackgroundService"/>
         <service android:name=".BackgroundDetector"/>
         <service android:name=".BackgroundSensorRecord"/>

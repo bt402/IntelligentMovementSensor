@@ -25,6 +25,10 @@ public class MovementNotification {
         PendingIntent cancelPendingIntent = PendingIntent.getActivity(context, 1, cancelIntent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
+        Intent negativeResponseIntent = new Intent(context, AddNewMovement.class);
+        negativeResponseIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent negativePendingIntent = PendingIntent.getActivity(context, 1, negativeResponseIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.grelogo)
@@ -32,7 +36,7 @@ public class MovementNotification {
                         .setContentTitle("Movement Detecion")
                         .setContentText("Was this a drop?")
                         .addAction(0, "Yes", cancelPendingIntent)
-                        .addAction(0, "No", null);
+                        .addAction(0, "No", negativePendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, mBuilder.build());
