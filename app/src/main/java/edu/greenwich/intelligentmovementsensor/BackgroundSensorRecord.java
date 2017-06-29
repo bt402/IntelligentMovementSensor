@@ -62,40 +62,8 @@ public class BackgroundSensorRecord extends Service implements SensorEventListen
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, mSensorManager.SENSOR_DELAY_NORMAL);
 
-        showNotification();
     }
 
-    private void showNotification() {
-        Intent cancelIntent = new Intent(this, ClosingActivity.class);
-        cancelIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        cancelIntent.putExtra("Cancelled", true);
-
-        PendingIntent cancelPendingIntent = PendingIntent.getActivity(this, 1, cancelIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-
-        Bitmap icon = BitmapFactory.decodeResource(getResources(),
-                R.drawable.ic_action_cancel);
-
-        RemoteViews cancelOnLock = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification_layout);
-        cancelOnLock.setImageViewBitmap(R.id.notification_icon, icon);
-        cancelOnLock.setTextViewText(R.id.notification_text, "Cancel Recording Data");
-        cancelOnLock.setOnClickPendingIntent(R.drawable.ic_action_cancel, cancelPendingIntent);
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.grelogo)
-                .setColor(Color.rgb(0,82,155))
-                .setContentTitle("Recording Data in Progress")
-                .setProgress(0,0,true)
-                .addAction(R.drawable.ic_action_cancel_small, "Cancel", cancelPendingIntent)
-                .setContent(cancelOnLock)
-                .setAutoCancel(false);
-
-
-        // Create Notification Manager
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Build Notification with Notification Manager
-        notificationManager.notify(0, mBuilder.build());
-    }
 
     @Nullable
     @Override

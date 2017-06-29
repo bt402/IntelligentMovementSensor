@@ -19,15 +19,21 @@ public class AddExisting {
         myConcept = project.getConceptByID(engine.getConceptName());
     }
 
-    public void addCase(String movementName, float accelerometerPeak, float gravitometerPeak, float gyroPeak) throws Exception {
+    public void addCase(String movementName, float accelerometerPeak, float gravitometerPeak, float gyroPeak) {
         loadengine();
 
-        Instance i = myConcept.addInstance("test");
-        i.addAttribute("MovementName", movementName);
-        i.addAttribute("AccelerometerPeak", accelerometerPeak);
-        i.addAttribute("GravitometerPeak", gravitometerPeak);
-        i.addAttribute("GyroPeak", gyroPeak);
-        cb.addCase(i);
-        project.save();
+        try {
+            int size = myConcept.getAllInstances().size();
+            Instance i = myConcept.addInstance("Movement #" + size);
+            i.addAttribute("MovementName", movementName);
+            i.addAttribute("AccelerometerPeak", accelerometerPeak);
+            i.addAttribute("GravitometerPeak", gravitometerPeak);
+            i.addAttribute("GyroPeak", gyroPeak);
+            cb.addCase(i);
+            project.save();
+        }
+        catch (Exception er){
+            System.out.println(er);
+        }
     }
 }

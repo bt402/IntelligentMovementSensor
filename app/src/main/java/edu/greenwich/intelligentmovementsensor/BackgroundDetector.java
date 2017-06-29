@@ -80,6 +80,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         numberOfCases = "5";
 
         CheckforAmalgamSelection();
+
     }
 
     static final public String RESULT = "edu.greenwich.intelligentmovementsensor.BackgroundDetector.REQUEST_PROCESSED";
@@ -217,6 +218,9 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
         String[] split = recommender.solveOuery(inputMovement,Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak), Integer.valueOf(numberOfCases)).split(",");
         //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
+
+        MovementNotification movementNotification = new MovementNotification(this, split[2], Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak));
+
         if (split.length > 1)
             sendResult(split[2]);
     }

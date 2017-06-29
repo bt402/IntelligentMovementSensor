@@ -4,25 +4,32 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.RemoteViews;
 
 public class MovementNotification {
 
-    public MovementNotification(Context context){
+    String name;
+    float accelerometerPeak, gravitometerPeak, gyroPeak;
+
+    public MovementNotification(Context context, String name, float accelerometerPeak, float gravitometerPeak, float gyroPeak){
+        this.name = name;
+        this.accelerometerPeak = accelerometerPeak;
+        this.gravitometerPeak = gravitometerPeak;
+        this.gyroPeak = gyroPeak;
+
         showNotification(context);
     }
 
     private void showNotification(Context context) {
 
-        Intent cancelIntent = new Intent(context, ClosingActivity.class);
-        cancelIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        cancelIntent.putExtra("Cancelled", true);
-        PendingIntent cancelPendingIntent = PendingIntent.getActivity(context, 1, cancelIntent,
+        Intent positiveResponseIntent = new Intent(context, AddExistingMovement.class);
+        positiveResponseIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        positiveResponseIntent.putExtra("MovementName", name);
+        positiveResponseIntent.putExtra("accelerometerPeak", accelerometerPeak);
+        positiveResponseIntent.putExtra("gravitometerPeak", gravitometerPeak);
+        positiveResponseIntent.putExtra("gyroPeak", gyroPeak);
+        PendingIntent positivePendingIntent = PendingIntent.getActivity(context, 1, positiveResponseIntent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
         Intent negativeResponseIntent = new Intent(context, AddNewMovement.class);
@@ -34,8 +41,8 @@ public class MovementNotification {
                         .setSmallIcon(R.drawable.grelogo)
                         .setColor(Color.rgb(0,82,155))
                         .setContentTitle("Movement Detecion")
-                        .setContentText("Was this a drop?")
-                        .addAction(0, "Yes", cancelPendingIntent)
+                        .setContentText("Was this a " + name)
+                        .addAction(0, "Yes", positivePendingIntent)
                         .addAction(0, "No", negativePendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);

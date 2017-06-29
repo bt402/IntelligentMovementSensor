@@ -2,6 +2,7 @@ package edu.greenwich.intelligentmovementsensor;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -68,16 +69,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Intent notificationIntent = getIntent();
-        // check if cancelled button on notification has been pressed
-        boolean cancelled = notificationIntent.getBooleanExtra("Cancelled", false);
-
-        if (cancelled){
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.cancel(0);
-        }
-
         startService(new Intent(MainActivity.this,BackgroundDetector.class));
 
         receiver = new BroadcastReceiver() {
@@ -89,8 +80,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 peakView.setText(s);
             }
         };
-
-        MovementNotification movementNotification = new MovementNotification(this);
 
         // initialize the sensor and location manager
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
@@ -112,68 +101,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         criteria.setAccuracy(Criteria.NO_REQUIREMENT);
         criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
 
-        final TextView recordLbl = (TextView) findViewById(R.id.recordLbl);
-
-        /*recordBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (recordBtn.getText().equals("Record Data")){
-
-                    // Create a dialog to ask for a movement name
-                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                    // Add a editable text area
-                    final EditText inputTxt = new EditText(MainActivity.this);
-                    inputTxt.setHint("Enter the movement name here"); // set placeholder for text area
-
-                    // Use layout to add the text area to the dialog
-                    LinearLayout layout = new LinearLayout(MainActivity.this);
-                    layout.setOrientation(LinearLayout.VERTICAL);
-
-                    alertDialog.setTitle("Name the movement"); // Dialog Title
-                    layout.addView(inputTxt); // add the text area to the layout
-                    alertDialog.setView(layout); // now add the layout to the dialog box
-
-                    alertDialog.setPositiveButton("Record", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // what to do when Save is clicked
-                            recordBtn.setText("Stop");
-                            recordLbl.setText("Recording...");
-                            //BackgroundSensorRecord.fileName = inputTxt.getText().toString();
-                            fileName = inputTxt.getText().toString();
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    BackgroundSensorRecord.context = getApplicationContext();
-                                    startService(new Intent(MainActivity.this,BackgroundSensorRecord.class));
-                                }
-                            }).start();
-                            //sensorMgr.unregisterListener(this);
-                        }
-                    });
-
-                    alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            // Canceled.
-                        }
-                    });
-
-                    alertDialog.show();  //<-- See This!
-                }
-                else if (recordBtn.getText().equals("Stop")){
-                    System.out.println("Stopped");
-                    try {
-                        recordData(BackgroundSensorRecord.dataList);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    recordBtn.setText("Record Data");
-                    recordLbl.setText("");
-                    System.exit(0);
-                }
-
-            }
-        });*/
     }
 
 
