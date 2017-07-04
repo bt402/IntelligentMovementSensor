@@ -30,8 +30,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     private Sensor mGyroscope = null;
     private Sensor mGravitometer = null;
 
-    float[] accSensorVals;
-    float[] gravSensorVals;
+    float[] accSensorVals, gravSensorVals;
 
     ArrayList<Float> accXAxisValues = new ArrayList<>();
     ArrayList<Float> accYAxisValues = new ArrayList<>();
@@ -45,10 +44,35 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     ArrayList<Float> gyroYAxisValues = new ArrayList<>();
     ArrayList<Float> gyroZAxisValues = new ArrayList<>();
 
+    ArrayList<Float> accXAxisSecondBuffer = new ArrayList<>();
+    ArrayList<Float> accYAxisSecondBuffer = new ArrayList<>();
+    ArrayList<Float> accZAxisSecondBuffer = new ArrayList<>();
 
+    ArrayList<Float> gravXAxisSecondBuffer = new ArrayList<>();
+    ArrayList<Float> gravYAxisSecondBuffer = new ArrayList<>();
+    ArrayList<Float> gravZAxisSecondBuffer = new ArrayList<>();
 
-    static final int DELAY = 1500;
+    ArrayList<Float> gyroXAxisSecondBuffer = new ArrayList<>();
+    ArrayList<Float> gyroYAxisSecondBuffer = new ArrayList<>();
+    ArrayList<Float> gyroZAxisSecondBuffer = new ArrayList<>();
+
+    ArrayList<Float> accXAxisCopy = new ArrayList<>();
+    ArrayList<Float> accYAxisCopy = new ArrayList<>();
+    ArrayList<Float> accZAxisCopy = new ArrayList<>();
+
+    ArrayList<Float> gravXAxisCopy = new ArrayList<>();
+    ArrayList<Float> gravYAxisCopy = new ArrayList<>();
+    ArrayList<Float> gravZAxisCopy = new ArrayList<>();
+
+    ArrayList<Float> gyroXAxisCopy = new ArrayList<>();
+    ArrayList<Float> gyroYAxisCopy = new ArrayList<>();
+    ArrayList<Float> gyroZAxisCopy = new ArrayList<>();
+
+    ArrayList<Float> accSecondBufferAverage, gravSecondBufferAverage, gyrosecondBufferAverage = new ArrayList<>();
+
+    static final int DELAY = 2500;
     long lastUpdate;
+    long lastUpdateTwo;
 
     LocalBroadcastManager broadcaster;
 
@@ -71,6 +95,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         mSensorManager.registerListener(this, mGravitometer, mSensorManager.SENSOR_STATUS_ACCURACY_MEDIUM); // MEDIUM is less power consumption
         broadcaster = LocalBroadcastManager.getInstance(this);
         lastUpdate = System.currentTimeMillis();
+        lastUpdateTwo = System.currentTimeMillis();
 
         recommender = new Recommender();
         recommender.loadengine();
@@ -109,18 +134,30 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                 accXAxisValues.add(accSensorVals[0]);
                 accYAxisValues.add(accSensorVals[1]);
                 accZAxisValues.add(accSensorVals[2]);
+
+                accXAxisSecondBuffer.add(accSensorVals[0]);
+                accYAxisSecondBuffer.add(accSensorVals[1]);
+                accZAxisSecondBuffer.add(accSensorVals[2]);
                 break;
             case Sensor.TYPE_GYROSCOPE:
                 //gyroSensorVals = lowPass(event.values.clone(), gyroSensorVals);
                 gyroXAxisValues.add(event.values[0]);
                 gyroYAxisValues.add(event.values[1]);
                 gyroZAxisValues.add(event.values[2]);
+
+                gyroXAxisSecondBuffer.add(event.values[0]);
+                gyroYAxisSecondBuffer.add(event.values[1]);
+                gyroZAxisSecondBuffer.add(event.values[2]);
                 break;
             case Sensor.TYPE_GRAVITY:
                 gravSensorVals = lowPass(event.values.clone(), gravSensorVals);
                 gravXAxisValues.add(gravSensorVals[0]);
                 gravYAxisValues.add(gravSensorVals[1]);
                 gravZAxisValues.add(gravSensorVals[2]);
+
+                gravXAxisSecondBuffer.add(gravSensorVals[0]);
+                gravYAxisSecondBuffer.add(gravSensorVals[1]);
+                gravZAxisSecondBuffer.add(gravSensorVals[2]);
                 break;
            /* case Sensor.TYPE_ROTATION_VECTOR:
                 lastRotation = event.values.clone();
@@ -128,6 +165,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                 rotationVectorList.add(rotvData);
                 break;*/
         }
+
 
         long curTime = System.currentTimeMillis();
 
@@ -137,6 +175,19 @@ public class BackgroundDetector extends Service implements SensorEventListener{
             checkSpikes(accXAxisValues, accYAxisValues, accZAxisValues,
                     gravXAxisValues, gravYAxisValues, gravZAxisValues,
                     gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
+
+            accXAxisCopy = new ArrayList<>(accXAxisValues);
+            accYAxisCopy = new ArrayList<>(accYAxisValues);
+            accZAxisCopy = new ArrayList<>(accZAxisValues);
+
+            gravXAxisCopy = new ArrayList<>(gravXAxisValues);
+            gravYAxisCopy = new ArrayList<>(gravYAxisValues);
+            gravZAxisCopy = new ArrayList<>(gravZAxisValues);
+
+            gyroXAxisCopy = new ArrayList<>(gyroXAxisValues);
+            gyroYAxisCopy = new ArrayList<>(gyroYAxisValues);
+            gyroZAxisCopy = new ArrayList<>(gyroZAxisValues);
+
             accXAxisValues = new ArrayList<>();
             accYAxisValues = new ArrayList<>();
             accZAxisValues = new ArrayList<>();
@@ -148,6 +199,50 @@ public class BackgroundDetector extends Service implements SensorEventListener{
             gyroXAxisValues = new ArrayList<>();
             gyroYAxisValues = new ArrayList<>();
             gyroZAxisValues = new ArrayList<>();
+        }
+
+        if ((curTime - lastUpdateTwo) > 3000){ // only reads data twice per second
+            lastUpdateTwo = curTime;
+            //System.out.println("Hello every 5 seconds");
+            checkSpikes(accXAxisSecondBuffer, accYAxisSecondBuffer, accZAxisSecondBuffer,
+                    gravXAxisSecondBuffer, gravYAxisSecondBuffer, gravZAxisSecondBuffer,
+                    gyroXAxisSecondBuffer, gyroYAxisSecondBuffer, gyroZAxisSecondBuffer);
+
+            List<Float> sourceList = new ArrayList<>(accXAxisCopy);
+            List<Float> destinationList = new ArrayList<>(accXAxisSecondBuffer);
+
+
+            sourceList.removeAll( accXAxisSecondBuffer );
+            destinationList.removeAll( accXAxisCopy );
+
+
+
+            System.out.println( sourceList );
+
+
+            accXAxisCopy = new ArrayList<>();
+            accYAxisCopy = new ArrayList<>();
+            accZAxisCopy = new ArrayList<>();
+
+            gravXAxisCopy = new ArrayList<>();
+            gravYAxisCopy = new ArrayList<>();
+            gravZAxisCopy = new ArrayList<>();
+
+            gyroXAxisCopy = new ArrayList<>();
+            gyroYAxisCopy = new ArrayList<>();
+            gyroZAxisCopy = new ArrayList<>();
+
+            accXAxisSecondBuffer = new ArrayList<>();
+            accYAxisSecondBuffer = new ArrayList<>();
+            accZAxisSecondBuffer = new ArrayList<>();
+
+            gravXAxisSecondBuffer = new ArrayList<>();
+            gravYAxisSecondBuffer = new ArrayList<>();
+            gravZAxisSecondBuffer = new ArrayList<>();
+
+            gyroXAxisSecondBuffer = new ArrayList<>();
+            gyroYAxisSecondBuffer = new ArrayList<>();
+            gyroZAxisSecondBuffer = new ArrayList<>();
         }
 
         /*new Thread() {
@@ -179,42 +274,15 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     private void checkSpikes(ArrayList<Float> accXAxisValues, ArrayList<Float> accYAxisValues, ArrayList<Float> accZzAxisValues,
                              ArrayList<Float> gravXAxisValues, ArrayList<Float> gravYAxisValues, ArrayList<Float> gravZAxisValues,
                              ArrayList<Float> gyroXAxisValues, ArrayList<Float> gyroYAxisValues, ArrayList<Float> gyroZAxisValues){
-        long lastUpdate = System.currentTimeMillis();
-        double sum = 0.0;
-        double average;
-        int count = 0;
-            for (int i = 0; i < accXAxisValues.size(); i++){
-                float absoluteSum = Math.abs(accXAxisValues.get(i) + accYAxisValues.get(i) + accZzAxisValues.get(i));
-                sum += absoluteSum;
-                count ++;
-            }
-            average = sum / count;
-        System.out.println("Absolute sum accelerometer average: " + average);
-        String accInputPeak = "" + average;
 
-        double sum2 = 0.0;
-        double average2;
-        int count2 = 0;
-        for (int i = 0; i < gravXAxisValues.size(); i++){
-            float absoluteSum = Math.abs(gravXAxisValues.get(i) + gravYAxisValues.get(i) + gravZAxisValues.get(i));
-            sum2 += absoluteSum;
-            count2 ++;
-        }
-        average2 = sum2 / count2;
-        System.out.println("Absolute sum gravitometer average: " + average2);
-        String gravInputPeak = "" + average2;
+        System.out.println("Absolute sum accelerometer average: " + absoluteSum(accXAxisValues, accYAxisValues, accZzAxisValues));
+        String accInputPeak = "" + absoluteSum(accXAxisValues, accYAxisValues, accZzAxisValues);
 
-        double sum3 = 0.0;
-        double average3;
-        int count3 = 0;
-        for (int i = 0; i < gyroXAxisValues.size(); i++){
-            float absoluteSum = Math.abs(gyroXAxisValues.get(i) + gyroYAxisValues.get(i) + gyroZAxisValues.get(i));
-            sum3 += absoluteSum;
-            count3 ++;
-        }
-        average3 = sum3 / count3;
-        System.out.println("Absolute sum gyroscope average: " + average3);
-        String gyroInputPeak = "" + average3;
+        System.out.println("Absolute sum gravitometer average: " + absoluteSum(gravXAxisValues, gravYAxisValues, gravZAxisValues));
+        String gravInputPeak = "" + absoluteSum(gravXAxisValues, gravYAxisValues, gravZAxisValues);
+
+        System.out.println("Absolute sum gyroscope average: " + absoluteSum(gyroXAxisValues, gyroYAxisValues, gyroZAxisValues));
+        String gyroInputPeak = "" + absoluteSum(gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
 
         String[] split = recommender.solveOuery(inputMovement,Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak), Integer.valueOf(numberOfCases)).split(",");
         //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
@@ -241,17 +309,6 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         ArrayList<Float> ySpikes = new ArrayList<>();
         ArrayList<Float> zSpikes = new ArrayList<>();
 
-        /*for (int i = 0; i < x.size(); i++){
-            System.out.println(x.get(i));
-        }
-        System.out.println("------------------");
-        for (int i = 0; i < y.size(); i++){
-            System.out.println(y.get(i));
-        }
-        System.out.println("------------------");
-        for (int i = 0; i < z.size(); i++){
-            System.out.println(z.get(i));
-        }*/
 
         for (int i = 0; i < x.size() - 2; i++) {
             float numX = (x.get(i + 1) - x.get(i)) * (x.get(i + 2) - x.get(i + 1));
@@ -306,6 +363,19 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                 recommender.myConcept.setActiveAmalgamFct(liste.get(i));
             }
         }
+    }
+
+    public double absoluteSum(ArrayList<Float> x, ArrayList<Float> y, ArrayList<Float> z){
+        double sum = 0.0;
+        double average;
+        int count = 0;
+        for (int i = 0; i < x.size(); i++){
+            float absoluteSum = Math.abs(x.get(i) + y.get(i) + z.get(i));
+            sum += absoluteSum;
+            count ++;
+        }
+        average = sum / count;
+        return average;
     }
 
     @Override
