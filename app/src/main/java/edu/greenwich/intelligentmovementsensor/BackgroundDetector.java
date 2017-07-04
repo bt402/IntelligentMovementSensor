@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -208,17 +209,17 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                     gravXAxisSecondBuffer, gravYAxisSecondBuffer, gravZAxisSecondBuffer,
                     gyroXAxisSecondBuffer, gyroYAxisSecondBuffer, gyroZAxisSecondBuffer);
 
-            List<Float> sourceList = new ArrayList<>(accXAxisCopy);
-            List<Float> destinationList = new ArrayList<>(accXAxisSecondBuffer);
+            accXAxisValues = new ArrayList<>(compareLists(accXAxisCopy, accXAxisSecondBuffer));
+            accYAxisValues = new ArrayList<>(compareLists(accYAxisCopy, accYAxisSecondBuffer));
+            accZAxisValues = new ArrayList<>(compareLists(accZAxisCopy, accZAxisSecondBuffer));
 
+            gravXAxisValues = new ArrayList<>(compareLists(gravXAxisCopy, gravXAxisSecondBuffer));
+            gravYAxisValues = new ArrayList<>(compareLists(gravYAxisCopy, gravYAxisSecondBuffer));
+            gravZAxisValues = new ArrayList<>(compareLists(gravZAxisCopy, gravZAxisSecondBuffer));
 
-            sourceList.removeAll( accXAxisSecondBuffer );
-            destinationList.removeAll( accXAxisCopy );
-
-
-
-            System.out.println( sourceList );
-
+            gyroXAxisValues = new ArrayList<>(compareLists(gyroXAxisCopy, gyroXAxisSecondBuffer));
+            gyroYAxisValues = new ArrayList<>(compareLists(gyroYAxisCopy, gyroYAxisSecondBuffer));
+            gyroZAxisValues = new ArrayList<>(compareLists(gyroZAxisCopy, gyroZAxisSecondBuffer));
 
             accXAxisCopy = new ArrayList<>();
             accYAxisCopy = new ArrayList<>();
@@ -376,6 +377,17 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         }
         average = sum / count;
         return average;
+    }
+
+    public List<Float> compareLists(ArrayList<Float> listOne, ArrayList<Float> listTwo){
+        List<Float> sourceList = new ArrayList<>(listOne);
+        List<Float> destinationList = new ArrayList<>(listTwo);
+
+
+        sourceList.removeAll( listTwo );
+        destinationList.removeAll( listOne );
+
+        return sourceList;
     }
 
     @Override
