@@ -288,10 +288,39 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         String[] split = recommender.solveOuery(inputMovement,Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak), Integer.valueOf(numberOfCases)).split(",");
         //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
 
-        MovementNotification movementNotification = new MovementNotification(this, split[2], Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak));
+        float accPeak = 0f;
+        float gravPeak = 0f;
+        float gyroPeak = 0f;
+        float similarity = 0f;
+        String name = "";
+
+        for (int i = 0; i < split.length; i ++){
+            if (split[i].contains("Acc")){
+                String val[] = split[i].split("=");
+                accPeak = Float.parseFloat(val[1].split("\\}")[0]);
+            }
+            else if (split[i].contains("Gyro")){
+                String val[] = split[i].split("=");
+                gyroPeak = Float.parseFloat(val[1].split("\\}")[0]);
+            }
+            else if (split[i].contains("Grav")){
+                String val[] = split[i].split("=");
+                gravPeak = Float.parseFloat(val[1].split("\\}")[0]);
+            }
+            else if (split[i].contains("Sim")){
+                String val[] = split[i].split("=");
+                similarity = Float.parseFloat(val[1].split("\\}")[0]);
+            }
+            else if (split[i].contains("Mov")){
+                String val[] = split[i].split("=");
+                name = val[1].split("\\}")[0];
+            }
+        }
+
+        MovementNotification movementNotification = new MovementNotification(this, name, Float.valueOf(accPeak), Float.valueOf(gravPeak), Float.valueOf(gyroPeak));
 
         if (split.length > 1)
-            sendResult(split[2]);
+            sendResult(name);
     }
 
     public void recordData(String data) throws IOException {

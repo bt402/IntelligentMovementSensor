@@ -80,8 +80,8 @@ public class Recommender {
             String casename = result.get(0).getFirst().getName();
             // get the similarity value
             Double sim = result.get(0).getSecond().getValue();
-            answer = "I found "+casename+" with a similarity of "+sim+" as the best match.";
-            answer = answer+"The "+numberofcases+" best cases shown in a table: <br /> <br /> <table border=\"1\">";
+            //answer = "I found "+casename+" with a similarity of "+sim+" as the best match.";
+            //answer = answer+"The "+numberofcases+" best cases shown in a table: <br /> <br /> <table border=\"1\">";
             ArrayList<Hashtable<String, String>> liste = new ArrayList<Hashtable<String, String>>();
             // if more case results are requested than we have in our case base at all:
             if(numberofcases>=cb.getCases().size()){numberofcases = cb.getCases().size();}
@@ -90,10 +90,11 @@ public class Recommender {
 
                 liste.add(getAttributes(result.get(i), rec.getConceptByID(engine.getConceptName())));
                 System.out.println("liste "+liste.get(i).toString());
-                answer=answer+"<tr><td>"+result.get(i).getFirst().getName()+"</td><td>"+liste.get(i).toString()+"</td></tr>";
+                //answer=answer+"<tr><td>"+result.get(i).getFirst().getName()+"</td><td>"+liste.get(i).toString()+"</td></tr>";
             }
 
-            answer= answer+"</table>";
+            //answer= answer+"</table>";
+            answer = liste.get(0).toString();
         }
         else{System.out.println("Retrieval Result is empty");}
 

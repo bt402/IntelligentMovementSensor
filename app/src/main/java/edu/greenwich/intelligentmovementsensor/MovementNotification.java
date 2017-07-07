@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
 public class MovementNotification {
@@ -36,16 +37,41 @@ public class MovementNotification {
         negativeResponseIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent negativePendingIntent = PendingIntent.getActivity(context, 1, negativeResponseIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.grelogo)
-                        .setColor(Color.rgb(0,82,155))
-                        .setContentTitle("Movement Detecion")
-                        .setContentText("Was this a " + name)
-                        .addAction(0, "Yes", positivePendingIntent)
-                        .addAction(0, "No", negativePendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+            // only for jelly bean (4.1) and newer versions
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(context)
+                            .setSmallIcon(R.drawable.grelogo)
+                            .setColor(Color.rgb(0,82,155))
+                            .setContentTitle("Movement Detecion")
+                            .setContentText("Was this a " + name)
+                            .addAction(0, "Yes", positivePendingIntent)
+                            .addAction(0, "No", negativePendingIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(0, mBuilder.build());
+        }
+        else if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN){
+            // older than jelly bean version (4.1)
+            Intent nid = new Intent(context, OlderVersionMovementAdd.class);
+            nid.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            nid.putExtra("MovementName", name);
+            nid.putExtra("accelerometerPeak", accelerometerPeak);
+            nid.putExtra("gravitometerPeak", gravitometerPeak);
+            nid.putExtra("gyroPeak", gyroPeak);
+            PendingIntent ci = PendingIntent.getActivity(context, 2, nid,
+                    PendingIntent.FLAG_CANCEL_CURRENT);
+
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(context)
+                            .setSmallIcon(R.drawable.grelogo_small)
+                            .setColor(Color.rgb(0,82,155))
+                            .setContentTitle("Movement Detecion")
+                            .setContentText("Was this a " + name)
+                            .setContentIntent(ci);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(0, mBuilder.build());
+        }
     }
 }

@@ -1,7 +1,10 @@
 package edu.greenwich.intelligentmovementsensor;
 
+import java.util.Collection;
+
 import de.dfki.mycbr.core.DefaultCaseBase;
 import de.dfki.mycbr.core.Project;
+import de.dfki.mycbr.core.casebase.SymbolAttribute;
 import de.dfki.mycbr.core.model.Concept;
 import de.dfki.mycbr.core.model.SymbolDesc;
 
@@ -26,6 +29,22 @@ public class AddNew {
         manufacturerDesc.addSymbol(symbolName);
 
         project.save();
+    }
+
+    public String[] getExistingMovementNames(){
+        loadengine();
+
+        SymbolDesc test = (SymbolDesc) myConcept.getAllAttributeDescs().get("MovementName");
+        Collection<SymbolAttribute> namesCollection = test.getSymbolAttributes();
+
+        String[] namesArray = new String[namesCollection.size()];
+        int index = 0;
+        for (Object value : namesCollection) {
+            namesArray[index] = value.toString();
+            index++;
+        }
+
+        return namesArray;
     }
 }
 

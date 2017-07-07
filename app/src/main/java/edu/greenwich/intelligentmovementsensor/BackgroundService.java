@@ -53,7 +53,9 @@ public class BackgroundService extends Service implements SensorEventListener {
     static boolean isRunning = false;
 
     @Override
-    public void onCreate() {}
+    public void onCreate() {
+
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -64,8 +66,7 @@ public class BackgroundService extends Service implements SensorEventListener {
     public void recordData(String data) throws IOException {
         File file = new File(Environment.getExternalStorageDirectory() + File.separator + fileName + ".csv");
         file.createNewFile();
-        if(file.exists())
-        {
+        if (file.exists()) {
             OutputStream fo = new FileOutputStream(file, true);
             fo.write(data.getBytes());
             fo.close();
@@ -110,13 +111,13 @@ public class BackgroundService extends Service implements SensorEventListener {
             for (float value : sensorEvent.values) {
                 msg.append("[").append(String.format("%.3f", value)).append("]");
                 try {
-                   recordData(sensorEvent.sensor.getName() + ", " + String.format("%.3f", value) + ", ");
+                    recordData(sensorEvent.sensor.getName() + ", " + String.format("%.3f", value) + ", ");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
             try {
-               recordData("\r\n");
+                recordData("\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -153,7 +154,7 @@ public class BackgroundService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // initialize the sensor and location manager
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         // set type to each sensor
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -179,3 +180,4 @@ public class BackgroundService extends Service implements SensorEventListener {
         }
     }
 }
+
