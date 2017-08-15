@@ -9,6 +9,7 @@ import java.util.Set;
 import de.dfki.mycbr.core.DefaultCaseBase;
 import de.dfki.mycbr.core.Project;
 import de.dfki.mycbr.core.casebase.Instance;
+import de.dfki.mycbr.core.casebase.SymbolAttribute;
 import de.dfki.mycbr.core.model.AttributeDesc;
 import de.dfki.mycbr.core.model.Concept;
 import de.dfki.mycbr.core.model.FloatDesc;
@@ -17,6 +18,7 @@ import de.dfki.mycbr.core.retrieval.Retrieval;
 import de.dfki.mycbr.core.retrieval.Retrieval.RetrievalMethod;
 import de.dfki.mycbr.core.similarity.AmalgamationFct;
 import de.dfki.mycbr.core.similarity.Similarity;
+import de.dfki.mycbr.core.similarity.SymbolFct;
 import de.dfki.mycbr.util.Pair;
 
 
@@ -37,12 +39,12 @@ public class Recommender {
         engine = new CBREngine();
         rec = engine.createProjectFromPRJ();
         // create case bases and assign the case bases that will be used for submitting a query
-        cb = (DefaultCaseBase)rec.getCaseBases().get(engine.getCaseBase());
+        cb = (DefaultCaseBase)rec.getCaseBases().get(CBREngine.getCaseBase());
         // create a concept and get the main concept of the project;
-        myConcept = rec.getConceptByID(engine.getConceptName());
+        myConcept = rec.getConceptByID(CBREngine.getConceptName());
     }
 
-    public String solveOuery(String name, Float accelerometerPeak, Float gravitometerPeak, Float gyroPeak, Integer numberofcases) {
+    public String solveOuery(String name, Float accelerometerPeak, Float gravitometerPeak, Float gyroPeak, Integer numberofcases, Float timePassed) {
 
         String answer="";
         // create a new retrieval
@@ -59,11 +61,13 @@ public class Recommender {
         FloatDesc accPeakDesc = (FloatDesc) myConcept.getAllAttributeDescs().get("AccelerometerPeak");
         FloatDesc gravPeakDesc = (FloatDesc) myConcept.getAllAttributeDescs().get("GravitometerPeak");
         FloatDesc gyroPeakDesc = (FloatDesc) myConcept.getAllAttributeDescs().get("GyroPeak");
+        FloatDesc timePassedDesc = (FloatDesc) myConcept.getAllAttributeDescs().get("Time");
 
         try {
             query.addAttribute(accPeakDesc,accPeakDesc.getAttribute(accelerometerPeak));
             query.addAttribute(gravPeakDesc, gravPeakDesc.getAttribute(gravitometerPeak));
             query.addAttribute(gyroPeakDesc, gyroPeakDesc.getAttribute(gyroPeak));
+            query.addAttribute(timePassedDesc, timePassedDesc.getAttribute(timePassed));
         } catch (ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -88,7 +92,7 @@ public class Recommender {
 
             for(int i = 0; i<numberofcases; i++){
 
-                liste.add(getAttributes(result.get(i), rec.getConceptByID(engine.getConceptName())));
+                liste.add(getAttributes(result.get(i), rec.getConceptByID(CBREngine.getConceptName())));
                 System.out.println("liste "+liste.get(i).toString());
                 //answer=answer+"<tr><td>"+result.get(i).getFirst().getName()+"</td><td>"+liste.get(i).toString()+"</td></tr>";
             }
@@ -100,6 +104,66 @@ public class Recommender {
 
         return answer;
     }
+
+    /**
+     * The method returns the similarity table. The similairty is between the Symbol Attributes
+     * @author brett,terry
+     * @param attrName = name of the symbol attribute
+     * @param symbFct = similarity function name for the symbol attribute
+     * @return double[][] = returns the table in form of double array
+     */
+    public double[][] similarityTable(String attrName, String symbFct){
+        SymbolDesc moveDesc = (SymbolDesc) myConcept.getAllAttributeDescs().get(attrName);
+        SymbolFct function = (SymbolFct) moveDesc.getFct(symbFct);
+        List<SymbolAttribute> symAttrs = new ArrayList<>(moveDesc.getSymbolAttributes());
+
+        int size = symAttrs.size();
+
+        double[][] simTable = new double[size][size];
+
+        for(SymbolAttribute symAttr : symAttrs) {
+            int indexOuter = symAttrs.indexOf(symAttr); // outer loop
+            int indexInner = 0;
+            for (final SymbolAttribute otherAttr : moveDesc.getSymbolAttributes()) {
+                double similarity = 0d;
+                try {
+                    similarity = function.calculateSimilarity(symAttr, otherAttr).getValue();
+                    simTable[indexOuter][indexInner] = similarity;
+                    indexInner++;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return simTable;
+    }
+
+    public void saveTable(String attrName, String symbFct, double[][] simTable, String[] nameTable){
+        SymbolDesc moveDesc = (SymbolDesc) myConcept.getAllAttributeDescs().get(attrName);
+        SymbolFct function = (SymbolFct) moveDesc.getFct(symbFct);
+
+        for (int i = 0; i < simTable.length; i++){
+            for (int j = 0; j < simTable[i].length; j++){
+                // string, string, double
+                function.setSimilarity(nameTable[i], nameTable[j], simTable[i][j]);
+            }
+        }
+        rec.save();
+    }
+
+    public ArrayList<String> getListOfNames(String attrName, String symbFct){
+        SymbolDesc moveDesc = (SymbolDesc) myConcept.getAllAttributeDescs().get(attrName);
+        List<SymbolAttribute> symAttrs = new ArrayList<>(moveDesc.getSymbolAttributes());
+        ArrayList<String> nameList = new ArrayList<>();
+
+        for (int i = 0; i < symAttrs.size(); i++){
+            nameList.add(symAttrs.get(i).toString());
+        }
+
+        return nameList;
+    }
+
     /**
      * This method delivers a Hashtable which contains the Attributs names (Attributes of the case) combined with their respective values.
      * @author weber,koehler,namuth
@@ -161,4 +225,3 @@ public class Recommender {
         return listoffunctions;
     }
 }
-

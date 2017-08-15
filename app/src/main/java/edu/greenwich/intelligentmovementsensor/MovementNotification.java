@@ -48,7 +48,7 @@ public class MovementNotification {
                             .addAction(0, "Yes", positivePendingIntent)
                             .addAction(0, "No", negativePendingIntent);
             NotificationManager mNotificationManager =
-                    (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(0, mBuilder.build());
         }
         else if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN){
@@ -70,8 +70,9 @@ public class MovementNotification {
                             .setContentText("Was this a " + name)
                             .setContentIntent(ci);
             NotificationManager mNotificationManager =
-                    (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(0, mBuilder.build());
         }
+
     }
 }

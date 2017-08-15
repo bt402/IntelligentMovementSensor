@@ -13,13 +13,9 @@
             </intent-filter>
         </activity>
         <activity android:windowSoftInputMode="adjustPan" android:name=".MainActivity"/>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".GraphView"/>
         <activity android:windowSoftInputMode="adjustPan" android:name=".TabsActivity" />
-        <activity android:windowSoftInputMode="adjustPan" android:name=".AddNewMovement"/>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".AddExistingMovement"/>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".OlderVersionMovementAdd"/>
-        <service android:name=".BackgroundService"/>
+        <activity android:windowSoftInputMode="adjustPan" android:configChanges="orientation|screenSize" android:name=".SimilarityView"/>
         <service android:name=".BackgroundDetector"/>
-        <service android:name=".BackgroundSensorRecord"/>
+        <activity android:windowSoftInputMode="adjustPan" android:name=".OlderVersionMovementAdd"/>
     </application>
 </manifest>

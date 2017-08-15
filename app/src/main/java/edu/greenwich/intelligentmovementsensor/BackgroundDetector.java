@@ -83,6 +83,8 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     static String inputAmalgamation;
     String inputMovement;
     String numberOfCases;
+    long startTime = 0;
+    long endTime = 0;
 
     @Override
     public void onCreate() {
@@ -97,6 +99,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         broadcaster = LocalBroadcastManager.getInstance(this);
         lastUpdate = System.currentTimeMillis();
         lastUpdateTwo = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
 
         recommender = new Recommender();
         recommender.loadengine();
@@ -172,6 +175,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
         if ((curTime - lastUpdate) > DELAY){ // only reads data twice per second
             lastUpdate = curTime;
+            startTime = curTime;
             //System.out.println("Hello every 5 seconds");
             checkSpikes(accXAxisValues, accYAxisValues, accZAxisValues,
                     gravXAxisValues, gravYAxisValues, gravZAxisValues,
@@ -285,7 +289,15 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         System.out.println("Absolute sum gyroscope average: " + absoluteSum(gyroXAxisValues, gyroYAxisValues, gyroZAxisValues));
         String gyroInputPeak = "" + absoluteSum(gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
 
-        String[] split = recommender.solveOuery(inputMovement,Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak), Integer.valueOf(numberOfCases)).split(",");
+        endTime = System.currentTimeMillis();
+        long timePassed = endTime - startTime;
+        double time = ((double)timePassed/1000);
+        if (timePassed > 10L) {
+            System.out.println("Time: " + time);
+        }
+        float timeFloat = Float.parseFloat("" + time);
+        String[] split = recommender.solveOuery(inputMovement,Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak), Integer.valueOf(numberOfCases), Float.valueOf(timeFloat)).split(",");
+        recommender.similarityTable("MovementName", "NameSim");
         //recommender.solveOuery(inputMovement,Float.valueOf(inputPeak), Integer.valueOf(numberOfCases));
 
         float accPeak = 0f;
@@ -317,7 +329,12 @@ public class BackgroundDetector extends Service implements SensorEventListener{
             }
         }
 
-        MovementNotification movementNotification = new MovementNotification(this, name, Float.valueOf(accPeak), Float.valueOf(gravPeak), Float.valueOf(gyroPeak));
+        // create and show notification
+        if (similarity < 0.70f){
+            // less than 70% certainty
+            MovementNotification movementNotification = new MovementNotification(this, name, Float.valueOf(accPeak), Float.valueOf(gravPeak), Float.valueOf(gyroPeak));
+        }
+
 
         if (split.length > 1)
             sendResult(name);

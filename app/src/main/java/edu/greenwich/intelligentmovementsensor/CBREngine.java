@@ -1,14 +1,8 @@
 package edu.greenwich.intelligentmovementsensor;
 
 import android.os.Environment;
-
-import java.io.File;
-
 import de.dfki.mycbr.core.Project;
 import de.dfki.mycbr.core.model.Concept;
-import de.dfki.mycbr.io.CSVImporter;
-import de.dfki.mycbr.core.*;
-import de.dfki.mycbr.util.Pair;
 import de.dfki.mycbr.io.CSVImporter;
 
 /**
@@ -166,4 +160,3 @@ public class CBREngine {
         return project;
     }
 }
-

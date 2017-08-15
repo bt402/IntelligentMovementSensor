@@ -1,12 +1,8 @@
 package edu.greenwich.intelligentmovementsensor;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.Sensor;
@@ -16,12 +12,9 @@ import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.view.Window;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -51,6 +44,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     String fileName = "";
 
+    ArrayList<Block> blockArrayList = new ArrayList<>();
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -68,16 +63,74 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         startService(new Intent(MainActivity.this,BackgroundDetector.class));
+
+        /*LayoutInflater inflater;
+        inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        RelativeLayout topStack = (RelativeLayout) inflater.inflate(R.layout.top_stack , null);
+        RelativeLayout middleStack = (RelativeLayout) inflater.inflate(R.layout.middle_stack, null);
+        RelativeLayout bottomStack = (RelativeLayout) inflater.inflate(R.layout.bottom_stack, null);
+
+        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.mainlayout);
+        mainLayout.addView(topStack);
+        mainLayout.addView(middleStack);
+        mainLayout.addView(bottomStack);*/
+
+        Block weather_data[] = new Block[]
+                {
+                        new Block("Test"),
+                        new Block("Test 2"),
+                        new Block("Test 3")
+                };
+
+        BlockAdapter adapter = new BlockAdapter(this,
+                R.layout.listview_item_row, weather_data);
+
+        ListView listView1;
+        listView1 = (ListView) findViewById(R.id.listView1);
+
+        listView1.setAdapter(adapter);
+
+
 
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String s = intent.getStringExtra(BackgroundDetector.MESSAGE);
                 // do something here.
-                TextView peakView = (TextView) findViewById(R.id.peakTxt);
-                peakView.setText(s);
+
+                blockArrayList.add(new Block(s));
+
+                if (blockArrayList.size() <= 10){
+                    Block block_data[] = new Block[blockArrayList.size() ];
+
+                    for (int i = 0; i < blockArrayList.size(); i++){
+                        block_data[i] = blockArrayList.get(i);
+                    }
+
+                    /*Block weather_data[] = new Block[]
+                            {
+                                    new Block(s),
+                            };*/
+
+                    BlockAdapter adapter = new BlockAdapter(MainActivity.this,
+                            R.layout.listview_item_row, block_data);
+
+                    ListView listView1;
+                    listView1 = (ListView) findViewById(R.id.listView1);
+
+                    listView1.setAdapter(adapter);
+
+                    TextView peakView = (TextView) findViewById(R.id.peakTxt);
+                    peakView.setText(s);
+                }
+                else {
+                    blockArrayList = new ArrayList<>();
+                }
+
             }
         };
 
@@ -91,10 +144,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         mCompass = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         // get data from the sensors
-        mSensorManager.registerListener(this, mAccelerometer, mSensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mGyroscope, mSensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mGravitometer, mSensorManager.SENSOR_STATUS_ACCURACY_MEDIUM); // MEDIUM is less power consumption
-        mSensorManager.registerListener(this, mCompass, mSensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mGravitometer, SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM); // MEDIUM is less power consumption
+        mSensorManager.registerListener(this, mCompass, SensorManager.SENSOR_DELAY_NORMAL);
 
 
         Criteria criteria = new Criteria();

@@ -1,6 +1,5 @@
 package edu.greenwich.intelligentmovementsensor;
 
-
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,10 +15,9 @@ public class TabsActivity  extends TabActivity {
 
         TabHost mTabHost = getTabHost();
 
-        mTabHost.addTab(mTabHost.newTabSpec("first").setIndicator("Record Data").setContent(new Intent(this  ,MainActivity.class )));
-        mTabHost.addTab(mTabHost.newTabSpec("second").setIndicator("Graph View").setContent(new Intent(this , GraphView.class )));
+        mTabHost.addTab(mTabHost.newTabSpec("first").setIndicator("Record Data").setContent(new Intent(this, MainActivity.class)));
+        mTabHost.addTab(mTabHost.newTabSpec("second").setIndicator("Sim Table").setContent(new Intent(this, SimilarityView.class)));
         mTabHost.setCurrentTab(0);
-
 
     }
 }
