@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.greenwich.intelligentmovementsensor">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,10 +16,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".MainActivity"/>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".TabsActivity" />
-        <activity android:windowSoftInputMode="adjustPan" android:configChanges="orientation|screenSize" android:name=".SimilarityView"/>
+        <activity android:windowSoftInputMode="adjustPan" android:name=".MainActivity" android:theme="@style/AppTheme"/>
+        <activity android:name=".CancelAlert"/>
+        <activity android:windowSoftInputMode="adjustPan" android:configChanges="orientation|screenSize" android:name=".SimilarityView" android:theme="@style/AppTheme"/>
         <service android:name=".BackgroundDetector"/>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".OlderVersionMovementAdd"/>
+        <activity android:windowSoftInputMode="adjustPan" android:name=".OlderVersionMovementAdd" android:theme="@style/AppTheme"/>
     </application>
 </manifest>

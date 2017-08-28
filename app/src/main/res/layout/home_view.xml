@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/left_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status:"
+            android:textColor="@color/ap_charcoal"
+            android:textStyle="bold"
+            android:paddingRight="50dp"
+            android:textSize="30sp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/statusColourTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="On"
+            android:textColor="#00FF00"
+            android:textStyle="bold"
+            android:paddingLeft="90dp"
+            android:textSize="30sp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"/>
+
+        <Button
+            android:id="@+id/startstopBtn"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/left_text"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
+            android:backgroundTint="#2b8aef"
+            android:text="Stop" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="200dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Options"
+                android:textSize="20dp"
+                android:textColor="@color/ap_white"
+                android:background="#050567"/>
+
+            <TextView
+                android:id="@+id/noOfMovementsTxt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Number of Movements: 8"
+                android:textSize="20dp"/>
+
+            <TextView
+                android:id="@+id/editNamesTxt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:text="@string/edit_names"
+                android:textSize="20dp"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lookup Frequency"
+                    android:textSize="20dp"
+                    android:id="@+id/textView2" />
+
+                <Spinner
+                    android:id="@+id/lookupFrequencySpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/value_arrays"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignBottom="@+id/textView2" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Enable Notifications"
+                    android:textSize="20dp" />
+
+                <Switch
+                    android:id="@+id/enableNotificationSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="*Disabling this will not allow the application to learn"
+                android:textSize="10dp"
+                android:textColor="#f11f39"
+                android:layout_marginLeft="10dp"/>
+
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+
+</RelativeLayout>

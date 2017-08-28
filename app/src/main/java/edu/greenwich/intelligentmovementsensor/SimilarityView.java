@@ -1,8 +1,10 @@
 package edu.greenwich.intelligentmovementsensor;
 
-import android.app.Activity;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 
 import de.dfki.mycbr.core.Project;
 
-public class SimilarityView extends Activity {
+public class SimilarityView extends Fragment {
 
     Project project;
     TableLayout tableLayout;
@@ -23,11 +25,11 @@ public class SimilarityView extends Activity {
     ArrayList<String> nameList;
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.sim_table);
-
-        tableLayout = (TableLayout) findViewById(R.id.similarityTableView);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.sim_table, container, false);
+        tableLayout = (TableLayout) rootView.findViewById(R.id.similarityTableView);
         recommender = new Recommender();
 
         recommender.loadengine();
@@ -37,11 +39,11 @@ public class SimilarityView extends Activity {
         double[][] simTable =
                 recommender.similarityTable("MovementName", "NameSim");
 
-        nameList = recommender.getListOfNames("MovementName", "NameSim");
+        nameList = recommender.getListOfNames("MovementName");
         int counter = 0;
 
         for (int i = 0; i < simTable.length; i++) {
-            TableRow tableRow = new TableRow(this);
+            TableRow tableRow = new TableRow(getActivity());
             tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
             for (int j = 0; j < simTable[i].length; j++) {
@@ -51,7 +53,7 @@ public class SimilarityView extends Activity {
                         nameTxt.setText("       ");
                         tableRow.addView(nameTxt);
                     }else {*/
-                    TextView nameTxt = new TextView(this);
+                    TextView nameTxt = new TextView(getActivity());
                     if (counter == nameList.size()) {
                         counter = 0;
                     }
@@ -61,7 +63,7 @@ public class SimilarityView extends Activity {
                     //}
                 }
                 else {
-                    EditText text = new EditText(this);
+                    EditText text = new EditText(getActivity());
                     text.setText(simTable[i][j] + "");
                     //text.setLayoutParams(tableRowParams);
                     text.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
@@ -76,7 +78,7 @@ public class SimilarityView extends Activity {
         changedSimTbl = new double[simTable.length][simTable.length];
 
 
-        Button saveBtn = (Button) findViewById(R.id.saveTableBtn);
+        Button saveBtn = (Button) rootView.findViewById(R.id.saveTableBtn);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,10 +98,11 @@ public class SimilarityView extends Activity {
                     }
                 }
                 recommender.saveTable("MovementName", "NameSim", changedSimTbl, nameList.toArray(new String[nameList.size()]));
-                Toast.makeText(getApplicationContext(),"Saved, I think....", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(),"Saved", Toast.LENGTH_LONG).show();
             }
         });
 
+        return rootView;
     }
 }
 

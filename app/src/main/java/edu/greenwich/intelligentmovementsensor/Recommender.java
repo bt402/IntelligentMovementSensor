@@ -105,6 +105,11 @@ public class Recommender {
         return answer;
     }
 
+    public int getNoOfMovements(){
+        SymbolDesc moveDesc = (SymbolDesc) myConcept.getAllAttributeDescs().get("MovementName");
+        return  moveDesc.getNodes().size();
+    }
+
     /**
      * The method returns the similarity table. The similairty is between the Symbol Attributes
      * @author brett,terry
@@ -152,7 +157,7 @@ public class Recommender {
         rec.save();
     }
 
-    public ArrayList<String> getListOfNames(String attrName, String symbFct){
+    public ArrayList<String> getListOfNames(String attrName){
         SymbolDesc moveDesc = (SymbolDesc) myConcept.getAllAttributeDescs().get(attrName);
         List<SymbolAttribute> symAttrs = new ArrayList<>(moveDesc.getSymbolAttributes());
         ArrayList<String> nameList = new ArrayList<>();
@@ -162,6 +167,13 @@ public class Recommender {
         }
 
         return nameList;
+    }
+
+    public boolean changeNames(String oldName, String newName){
+        SymbolDesc moveDesc = (SymbolDesc) myConcept.getAllAttributeDescs().get("MovementName");
+        boolean saved = moveDesc.renameValue(oldName, newName);
+        rec.save();
+        return saved;
     }
 
     /**

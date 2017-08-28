@@ -2,6 +2,7 @@ package edu.greenwich.intelligentmovementsensor;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,6 +10,7 @@ import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -17,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -71,7 +72,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
     ArrayList<Float> accSecondBufferAverage, gravSecondBufferAverage, gyrosecondBufferAverage = new ArrayList<>();
 
-    static final int DELAY = 2500;
+    static int DELAY;
     long lastUpdate;
     long lastUpdateTwo;
 
@@ -86,8 +87,15 @@ public class BackgroundDetector extends Service implements SensorEventListener{
     long startTime = 0;
     long endTime = 0;
 
+    static Service service;
+
+    private static AlertNotification alertNotification;
+    public static int noOfMovements = -1;
+    boolean enabledNotifications;
+
     @Override
     public void onCreate() {
+        service = this;
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -107,6 +115,12 @@ public class BackgroundDetector extends Service implements SensorEventListener{
 
         inputMovement = "_unknown_"; // Freefall, Bunce, Impact, Still, Flat, Walk
         numberOfCases = "5";
+
+        noOfMovements = recommender.getNoOfMovements();
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        enabledNotifications = sharedPref.getBoolean("enableNotificationBool", true);
+        DELAY = sharedPref.getInt("lookupFrequencyInteger", 2500);
 
         CheckforAmalgamSelection();
 
@@ -332,7 +346,16 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         // create and show notification
         if (similarity < 0.70f){
             // less than 70% certainty
-            MovementNotification movementNotification = new MovementNotification(this, name, Float.valueOf(accPeak), Float.valueOf(gravPeak), Float.valueOf(gyroPeak));
+            if (enabledNotifications) {
+                MovementNotification movementNotification = new MovementNotification(this, name, Float.valueOf(accPeak), Float.valueOf(gravPeak), Float.valueOf(gyroPeak));
+            }
+        }
+
+        //String test = "Impact";
+        if (name.equals("Impact")){
+            if (alertNotification == null) {
+                alertNotification = new AlertNotification(this);
+            }
         }
 
 
@@ -441,9 +464,19 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         // Do nothing
     }
 
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+    }
+
     public class LocalBinder extends Binder {
         BackgroundDetector getService() {
             return BackgroundDetector.this;
         }
+    }
+
+    public static void stopService(){
+        service.stopSelf();
     }
 }

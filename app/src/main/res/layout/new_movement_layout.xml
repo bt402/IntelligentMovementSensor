@@ -3,24 +3,9 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add New Movement"/>
-
-    <Spinner
-        android:id="@+id/movementTxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/addBtn"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="28dp" />
-
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/textBox">
+        android:layout_height="wrap_content">
         <TextView
             android:id="@+id/accValue"
             android:layout_width="match_parent"
@@ -28,9 +13,11 @@
 
         <TextView
             android:id="@+id/gravValue"
-            android:layout_below="@+id/accValue"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/accValue"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
         <TextView
             android:id="@+id/gyroValue"
@@ -39,22 +26,48 @@
             android:layout_height="wrap_content" />
     </RelativeLayout>
 
-    <Button
-        android:id="@+id/addBtn"
-        android:text="Add"
-        android:layout_width="wrap_content"
+    <RadioGroup
+        android:id="@+id/radioButtonGroup2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/addNewBtn"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="15dp" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="70dp"
+        android:paddingLeft="10dp">
 
-    <Button
-        android:id="@+id/addNewBtn"
-        android:text="Add New"
-        android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/newRadioBtn2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="New"/>
+
+        <RadioButton
+            android:id="@+id/existinRadioBtn2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Existing"/>
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/recScreenLinearLayout2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="151dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginTop="120dp"
+        android:orientation="vertical">
+    </LinearLayout>
+
+        <Button
+            android:id="@+id/addBtn"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center|bottom"
+            android:background="#2b8aef"
+            android:textColor="#ffffff"
+            android:layout_alignParentBottom="true"
+            android:text="Add" />
 
 </RelativeLayout>

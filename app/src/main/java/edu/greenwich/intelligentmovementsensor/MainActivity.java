@@ -1,10 +1,12 @@
 package edu.greenwich.intelligentmovementsensor;
 
-import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -12,18 +14,33 @@ import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-public class MainActivity extends Activity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager mSensorManager = null;
 
@@ -42,9 +59,15 @@ public class MainActivity extends Activity implements SensorEventListener {
     String gyroData = "Gyro Data";
     String gravData = "Gravity Data";
 
-    String fileName = "";
+    ListView mDrawerList;
+    RelativeLayout mDrawerPane;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private DrawerLayout mDrawerLayout;
 
-    ArrayList<Block> blockArrayList = new ArrayList<>();
+    ArrayList<NavigationItem> mNavItems = new ArrayList<>();
+    ArrayList<String> tableContent = new ArrayList<>();
+
+    public static Intent intent;
 
     @Override
     protected void onStart() {
@@ -64,73 +87,120 @@ public class MainActivity extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+//            copyAssets();
+
         setContentView(R.layout.activity_main);
-        startService(new Intent(MainActivity.this,BackgroundDetector.class));
+        intent = new Intent(getApplicationContext(), BackgroundDetector.class);
+        startService(intent);
+        //startService(new Intent(MainActivity.this,BackgroundDetector.class));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        /*LayoutInflater inflater;
-        inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        setTitle("Status");
 
-        RelativeLayout topStack = (RelativeLayout) inflater.inflate(R.layout.top_stack , null);
-        RelativeLayout middleStack = (RelativeLayout) inflater.inflate(R.layout.middle_stack, null);
-        RelativeLayout bottomStack = (RelativeLayout) inflater.inflate(R.layout.bottom_stack, null);
+        mNavItems.add(new NavigationItem("Home", "Enable/Disable Options", R.drawable.ic_action_home));
+        mNavItems.add(new NavigationItem("Table", "Movement Similarity Table", R.drawable.ic_action_list));
+        mNavItems.add(new NavigationItem("Add", "Add New Movements Manually", R.drawable.ic_action_add));
+        mNavItems.add(new NavigationItem("About", "Legal Disclaimer", R.drawable.ic_action_info));
 
-        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.mainlayout);
-        mainLayout.addView(topStack);
-        mainLayout.addView(middleStack);
-        mainLayout.addView(bottomStack);*/
+        // DrawerLayout
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
-        Block weather_data[] = new Block[]
-                {
-                        new Block("Test"),
-                        new Block("Test 2"),
-                        new Block("Test 3")
-                };
+        // Populate the Navigtion Drawer with options
+        mDrawerPane = (RelativeLayout) findViewById(R.id.drawerPane);
+        mDrawerList = (ListView) findViewById(R.id.navList);
+        DrawerListAdapter adapter = new DrawerListAdapter(this, mNavItems);
+        mDrawerList.setAdapter(adapter);
 
-        BlockAdapter adapter = new BlockAdapter(this,
-                R.layout.listview_item_row, weather_data);
+        Fragment fragment = new StatusView();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.mainContent, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
 
-        ListView listView1;
-        listView1 = (ListView) findViewById(R.id.listView1);
+        // Drawer Item click listeners
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectItemFromDrawer(position);
+            }
+            /*
+            * Called when a particular item from the navigation drawer
+            * is selected.
+            * */
+            private void selectItemFromDrawer(int position) {
+                //Fragment fragment = new PreferencesFragement();
+                Fragment fragment = null;
 
-        listView1.setAdapter(adapter);
+                //FragmentManager fragmentManager = getFragmentManager();
+                //fragmentManager.beginTransaction()
+                //        .replace(R.id.mainContent, fragment)
+                 //       .commit();
 
+                mDrawerList.setItemChecked(position, true);
+                setTitle(mNavItems.get(position).mTitle);
+
+                if(position == 0){
+                    fragment = new HomeView();
+                }
+                else if (position == 1){
+                    fragment = new SimilarityView();
+                }
+                else if (position == 2){
+                    fragment = new AddView();
+                }
+                else if (position == 3){
+                    fragment = new AboutView();
+                }
+                //replacing the fragment
+                if (fragment != null) {
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.mainContent, fragment);
+                    ft.addToBackStack(null);
+                    ft.commit();
+                }
+                // Close the drawer
+                mDrawerLayout.closeDrawer(mDrawerPane);
+            }
+        });
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+
+                invalidateOptionsMenu();
+            }
+        };
+
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String s = intent.getStringExtra(BackgroundDetector.MESSAGE);
-                // do something here.
 
-                blockArrayList.add(new Block(s));
+                tableContent.add(s);
 
-                if (blockArrayList.size() <= 10){
-                    Block block_data[] = new Block[blockArrayList.size() ];
-
-                    for (int i = 0; i < blockArrayList.size(); i++){
-                        block_data[i] = blockArrayList.get(i);
+                if (tableContent.size() <= 5){
+                    for (int i = 1; i <= tableContent.size(); i++){
+                        TextView row = (TextView) findViewById(getResources().getIdentifier("row" + i, "id", getPackageName())); // use string to indentify the textview, which will allow to loop through
+                        if (row != null) {
+                            row.setText(s);
+                        }
                     }
-
-                    /*Block weather_data[] = new Block[]
-                            {
-                                    new Block(s),
-                            };*/
-
-                    BlockAdapter adapter = new BlockAdapter(MainActivity.this,
-                            R.layout.listview_item_row, block_data);
-
-                    ListView listView1;
-                    listView1 = (ListView) findViewById(R.id.listView1);
-
-                    listView1.setAdapter(adapter);
-
-                    TextView peakView = (TextView) findViewById(R.id.peakTxt);
-                    peakView.setText(s);
                 }
                 else {
-                    blockArrayList = new ArrayList<>();
+                    tableContent = new ArrayList<>();
                 }
-
             }
         };
 
@@ -156,22 +226,25 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     }
 
-
-    public void recordData(ArrayList<String> data) throws IOException {
-        File file = new File(Environment.getExternalStorageDirectory() + File.separator + fileName + ".csv");
-        file.createNewFile();
-        OutputStream fo = null;
-        if(file.exists())
-        {
-            fo = new FileOutputStream(file, true);
-            for (int i = 0; i < data.size(); i++){
-                fo.write(data.get(i).getBytes());
-                fo.write("\n".getBytes());
-            }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Pass the event to ActionBarDrawerToggle
+        // If it returns true, then it has handled
+        // the nav drawer indicator touch event
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
         }
-        fo.close();
+
+        // Handle your other action bar items...
+
+        return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -207,7 +280,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             }
         }
 
-        textBox.setText(text);
+        if (textBox != null) {
+            textBox.setText(text);
+        }
 
         StringBuilder msg = new StringBuilder(sensorEvent.sensor.getName())
                 .append(" ");
@@ -233,6 +308,44 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     }
 
+    private void copyAssets() {
+        AssetManager assetManager = getAssets();
+        String[] files = null;
+        try {
+            files = assetManager.list("");
+        } catch (IOException e) {
+            Log.e("tag", "Failed to get asset file list.", e);
+        }
+        for(String filename : files) {
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+                in = assetManager.open(filename);
+
+                String outDir = Environment.getExternalStorageDirectory() + "";
+
+                File outFile = new File(outDir, filename);
+
+                out = new FileOutputStream(outFile);
+                copyFile(in, out);
+                in.close();
+                in = null;
+                out.flush();
+                out.close();
+                out = null;
+            } catch(IOException e) {
+                Log.e("tag", "Failed to copy asset file: " + filename, e);
+            }
+        }
+    }
+    private void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
+        }
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
@@ -245,4 +358,67 @@ public class MainActivity extends Activity implements SensorEventListener {
         //mSensorManager.unregisterListener(this);
     }
 
+    class NavigationItem {
+        // Add new items to the slide menu
+        String mTitle;
+        String mSubtitle;
+        int mIcon;
+
+        public NavigationItem(String title, String subtitle, int icon) {
+            mTitle = title;
+            mSubtitle = subtitle;
+            mIcon = icon;
+        }
+    }
+
+    class DrawerListAdapter extends BaseAdapter {
+        /**
+         * Bind with ListView in the menu
+         **/
+        Context mContext;
+        ArrayList<NavigationItem> mNavItems;
+
+        public DrawerListAdapter(Context context, ArrayList<NavigationItem> navItems) {
+            mContext = context;
+            mNavItems = navItems;
+        }
+
+        @Override
+        public int getCount() {
+            return mNavItems.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mNavItems.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view;
+
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.drawer_item, null);
+            }
+            else {
+                view = convertView;
+            }
+
+            TextView titleView = (TextView) view.findViewById(R.id.title);
+            TextView subtitleView = (TextView) view.findViewById(R.id.subTitle);
+            ImageView iconView = (ImageView) view.findViewById(R.id.icon);
+
+            titleView.setText( mNavItems.get(position).mTitle );
+            subtitleView.setText( mNavItems.get(position).mSubtitle );
+            iconView.setImageResource(mNavItems.get(position).mIcon);
+
+            return view;
+        }
+    }
 }

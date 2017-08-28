@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">Intelligent Movement Sensor</string>
     <string name="dismiss">Cancel</string>
+    <string name="drawer_open">drawer open</string>
+    <string name="drawer_close">drawer close</string>
+    <string name="edit_names"><u>Edit Names</u></string>
+
+    <string-array name="value_arrays">
+    <item>2500</item>
+    <item>2000</item>
+    <item>1500</item>
+    <item>1000</item>
+    </string-array>
+
 </resources>

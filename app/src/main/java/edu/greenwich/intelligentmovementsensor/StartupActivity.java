@@ -27,7 +27,7 @@ public class StartupActivity extends Activity {
             new Handler().postDelayed(new Runnable(){
                 @Override
                 public void run() {
-                    Intent mainIntent = new Intent(StartupActivity.this, TabsActivity.class);
+                    Intent mainIntent = new Intent(StartupActivity.this, MainActivity.class);
                     StartupActivity.this.startActivity(mainIntent);
                     StartupActivity.this.finish();
                 }
@@ -45,7 +45,7 @@ public class StartupActivity extends Activity {
                     new Handler().postDelayed(new Runnable(){
                         @Override
                         public void run() {
-                            Intent mainIntent = new Intent(StartupActivity.this, TabsActivity.class);
+                            Intent mainIntent = new Intent(StartupActivity.this, MainActivity.class);
                             StartupActivity.this.startActivity(mainIntent);
                             StartupActivity.this.finish();
                         }
