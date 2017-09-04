@@ -1,17 +1,19 @@
 package edu.greenwich.intelligentmovementsensor;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.telephony.SmsManager;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,6 +28,9 @@ public class SendAlertMessage {
 
     static String address;
 
+    static private String phone_number;
+    static private String email_address;
+
     public SendAlertMessage(){}
 
     public static void startTimer(Context context){
@@ -38,6 +43,8 @@ public class SendAlertMessage {
         Criteria criteria = new Criteria();
         String bestProvider = mLocationManager.getBestProvider(criteria, false);
         Location myLocation = null;
+
+        loadContacts(context);
 
         try {
             myLocation = mLocationManager.getLastKnownLocation(bestProvider);
@@ -81,7 +88,14 @@ public class SendAlertMessage {
                             "Location of the incident: latitude - " + latitude + ", longitude - " + longitude
                             + "\n Approximate address: " + address,
                             "terrybrett94@gmail.com",
-                            "bt402@greenwich.ac.uk");
+                            email_address);
+
+                    String josh="07887396232";
+                    String msg= "Location of the incident: latitude - " + latitude + ", longitude - " + longitude
+                            + "\n Approximate address: " + address;
+
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(phone_number, null, msg, null, null);
                 } catch (Exception e) {
                     Log.e("SendMail", e.getMessage(), e);
                 }
@@ -90,4 +104,11 @@ public class SendAlertMessage {
         }.execute();
 
     }
+
+    static void loadContacts(Context context){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        phone_number = sharedPref.getString("phone_number", "00000000");
+        email_address = sharedPref.getString("email_address", "example@email.com");
+    }
+
 }

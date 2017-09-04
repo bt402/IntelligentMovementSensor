@@ -16,9 +16,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class OlderVersionMovementAdd extends AppCompatActivity{
 
     LinearLayout layout = null;

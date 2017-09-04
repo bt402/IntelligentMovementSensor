@@ -1,9 +1,9 @@
 package edu.greenwich.intelligentmovementsensor;
 
-import de.dfki.mycbr.core.Project;
-import de.dfki.mycbr.core.model.Concept;
 import de.dfki.mycbr.core.DefaultCaseBase;
+import de.dfki.mycbr.core.Project;
 import de.dfki.mycbr.core.casebase.Instance;
+import de.dfki.mycbr.core.model.Concept;
 
 public class AddExisting {
 

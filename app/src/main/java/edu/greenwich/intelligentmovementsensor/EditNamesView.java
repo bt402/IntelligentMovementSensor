@@ -1,7 +1,7 @@
 package edu.greenwich.intelligentmovementsensor;
 
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,22 +39,33 @@ public class EditNamesView extends Fragment {
             @Override
             public void onClick(View v) {
                 // changeNames(oldName, newName);
-                oldName = dropDown.getSelectedItem().toString();
-                newName = newNameTxt.getText().toString();
+                if (!isEmpty()) {
+                    oldName = dropDown.getSelectedItem().toString();
+                    newName = newNameTxt.getText().toString();
 
-                Recommender recommender = new Recommender();
-                recommender.loadengine();
-                boolean saved = recommender.changeNames(oldName, newName);
-                if (saved){
-                    Toast.makeText(getContext(), "Save Successful!", Toast.LENGTH_LONG).show();
+                    Recommender recommender = new Recommender();
+                    recommender.loadengine();
+                    boolean saved = recommender.changeNames(oldName, newName);
+                    if (saved) {
+                        Toast.makeText(getContext(), "Save Successful!", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), "Oops.. Something went wrong!", Toast.LENGTH_LONG).show();
+                    }
                 }
                 else {
-                    Toast.makeText(getContext(), "Oops.. Something went wrong!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "No name found!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         // Inflate the layout for this fragment
         return rootView;
+    }
+
+    boolean isEmpty(){
+        if (!dropDown.getSelectedItem().toString().equals("") && !newNameTxt.getText().toString().equals("")){
+            return false;
+        }
+        return true;
     }
 }

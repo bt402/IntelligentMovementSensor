@@ -129,6 +129,67 @@
                 android:textColor="#f11f39"
                 android:layout_marginLeft="10dp"/>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Alert Email address: "
+                    android:textSize="20dp"/>
+
+                <EditText
+                    android:id="@+id/email_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:hint="Enter email here"
+                    android:text="bt402@greenwich.ac.uk" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Alert phone number: "
+                    android:textSize="20dp" />
+
+                <EditText
+                    android:id="@+id/phone_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:hint="Enter phone number here"
+                    android:text="07887396232"
+                    android:inputType = "number"/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_margin="12dp"
+                android:background="#f9f9f9"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:gravity="bottom|center">
+
+                <Button
+                    android:id="@+id/saveAlertButton"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_gravity="center|bottom"
+                    android:background="#2b8aef"
+                    android:textColor="#ffffff"
+                    android:layout_alignParentBottom="true"
+                    android:text="Save"
+                    android:visibility="invisible"/>
+
+            </LinearLayout>
+
 
         </LinearLayout>
 

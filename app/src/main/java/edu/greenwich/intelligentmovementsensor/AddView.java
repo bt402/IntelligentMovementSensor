@@ -7,10 +7,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.app.Fragment;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -123,47 +123,52 @@ public class AddView extends Fragment implements SensorEventListener {
                 String buttonText = recordBtn.getText().toString();
 
                 if (newRadioButton.isChecked() || existingRadioButton.isChecked()){
-                    if (buttonText.equals("Start Recording")){
-                        recordBtn.setText("Stop Recording");
+                    if (!isEmpty()){
+                        if (buttonText.equals("Start Recording")){
+                            recordBtn.setText("Stop Recording");
 
-                        mSensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
+                            mSensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
 
-                        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                        mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-                        mGravitometer = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+                            mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                            mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+                            mGravitometer = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
 
-                        mSensorManager.registerListener(AddView.this, mAccelerometer, mSensorManager.SENSOR_DELAY_NORMAL);
-                        mSensorManager.registerListener(AddView.this, mGyroscope, mSensorManager.SENSOR_DELAY_NORMAL);
-                        mSensorManager.registerListener(AddView.this, mGravitometer, mSensorManager.SENSOR_DELAY_NORMAL);
+                            mSensorManager.registerListener(AddView.this, mAccelerometer, mSensorManager.SENSOR_DELAY_NORMAL);
+                            mSensorManager.registerListener(AddView.this, mGyroscope, mSensorManager.SENSOR_DELAY_NORMAL);
+                            mSensorManager.registerListener(AddView.this, mGravitometer, mSensorManager.SENSOR_DELAY_NORMAL);
 
-                    }
-                    else if (buttonText.equals("Stop Recording")){
-                        mSensorManager.unregisterListener(AddView.this);
-                        recordBtn.setText("Start Recording");
+                        }
+                        else if (buttonText.equals("Stop Recording")){
+                            mSensorManager.unregisterListener(AddView.this);
+                            recordBtn.setText("Start Recording");
 
-                        String accInputPeak = "" + absoluteSum(accXAxisValues, accYAxisValues, accZAxisValues);
-                        String gravInputPeak = "" + absoluteSum(gravXAxisValues, gravYAxisValues, gravZAxisValues);
-                        String gyroInputPeak = "" + absoluteSum(gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
-                        String name;
+                            String accInputPeak = "" + absoluteSum(accXAxisValues, accYAxisValues, accZAxisValues);
+                            String gravInputPeak = "" + absoluteSum(gravXAxisValues, gravYAxisValues, gravZAxisValues);
+                            String gyroInputPeak = "" + absoluteSum(gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
+                            String name;
 
-                        if (newMovementNameText != null){
-                            if (!newMovementNameText.getText().equals("")){
-                                name = newMovementNameText.getText().toString();
-                                try {
-                                    addNew.addCase(name);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                            if (newMovementNameText != null){
+                                if (!newMovementNameText.getText().equals("")){
+                                    name = newMovementNameText.getText().toString();
+                                    try {
+                                        addNew.addCase(name);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    addExisting.addCase(name, Float.parseFloat(accInputPeak), Float.parseFloat(gravInputPeak), Float.parseFloat(gyroInputPeak));
                                 }
+                            }
+                            else {
+                                name = dropDown.getSelectedItem().toString();
                                 addExisting.addCase(name, Float.parseFloat(accInputPeak), Float.parseFloat(gravInputPeak), Float.parseFloat(gyroInputPeak));
                             }
-                        }
-                        else {
-                            name = dropDown.getSelectedItem().toString();
-                            addExisting.addCase(name, Float.parseFloat(accInputPeak), Float.parseFloat(gravInputPeak), Float.parseFloat(gyroInputPeak));
-                        }
 
-                        Toast toast = Toast.makeText(getContext(), "Movement added!", Toast.LENGTH_LONG);
-                        toast.show();
+                            Toast toast = Toast.makeText(getContext(), "Movement added!", Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+                    }
+                    else {
+                        Toast.makeText(getContext(), "No name found", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else {
@@ -208,6 +213,20 @@ public class AddView extends Fragment implements SensorEventListener {
         }
         average = sum / count;
         return average;
+    }
+
+    boolean isEmpty(){
+        if (newMovementNameText != null){
+            if (!newMovementNameText.getText().toString().equals("")){
+                return false;
+            }
+        }
+        else if (dropDown != null){
+            if (!dropDown.getSelectedItem().toString().equals("")){
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

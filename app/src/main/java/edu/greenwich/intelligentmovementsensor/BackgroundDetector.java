@@ -25,7 +25,7 @@ import java.util.Set;
 
 import de.dfki.mycbr.core.similarity.AmalgamationFct;
 
-public class BackgroundDetector extends Service implements SensorEventListener{
+public class BackgroundDetector extends Service implements SensorEventListener, SharedPreferences.OnSharedPreferenceChangeListener{
 
     private SensorManager mSensorManager = null;
     private Sensor mAccelerometer = null;
@@ -145,124 +145,127 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         /*if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             accSensorVals = lowPass(event.values.clone(), accSensorVals);
         }*/
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean active = sharedPref.getBoolean("active", true);
+        if (active){
 
-        switch (event.sensor.getType()) {
-            case Sensor.TYPE_ACCELEROMETER:
-                accSensorVals = lowPass(event.values.clone(), accSensorVals);
-                accXAxisValues.add(accSensorVals[0]);
-                accYAxisValues.add(accSensorVals[1]);
-                accZAxisValues.add(accSensorVals[2]);
+            switch (event.sensor.getType()) {
+                case Sensor.TYPE_ACCELEROMETER:
+                    accSensorVals = lowPass(event.values.clone(), accSensorVals);
+                    accXAxisValues.add(accSensorVals[0]);
+                    accYAxisValues.add(accSensorVals[1]);
+                    accZAxisValues.add(accSensorVals[2]);
 
-                accXAxisSecondBuffer.add(accSensorVals[0]);
-                accYAxisSecondBuffer.add(accSensorVals[1]);
-                accZAxisSecondBuffer.add(accSensorVals[2]);
-                break;
-            case Sensor.TYPE_GYROSCOPE:
-                //gyroSensorVals = lowPass(event.values.clone(), gyroSensorVals);
-                gyroXAxisValues.add(event.values[0]);
-                gyroYAxisValues.add(event.values[1]);
-                gyroZAxisValues.add(event.values[2]);
+                    accXAxisSecondBuffer.add(accSensorVals[0]);
+                    accYAxisSecondBuffer.add(accSensorVals[1]);
+                    accZAxisSecondBuffer.add(accSensorVals[2]);
+                    break;
+                case Sensor.TYPE_GYROSCOPE:
+                    //gyroSensorVals = lowPass(event.values.clone(), gyroSensorVals);
+                    gyroXAxisValues.add(event.values[0]);
+                    gyroYAxisValues.add(event.values[1]);
+                    gyroZAxisValues.add(event.values[2]);
 
-                gyroXAxisSecondBuffer.add(event.values[0]);
-                gyroYAxisSecondBuffer.add(event.values[1]);
-                gyroZAxisSecondBuffer.add(event.values[2]);
-                break;
-            case Sensor.TYPE_GRAVITY:
-                gravSensorVals = lowPass(event.values.clone(), gravSensorVals);
-                gravXAxisValues.add(gravSensorVals[0]);
-                gravYAxisValues.add(gravSensorVals[1]);
-                gravZAxisValues.add(gravSensorVals[2]);
+                    gyroXAxisSecondBuffer.add(event.values[0]);
+                    gyroYAxisSecondBuffer.add(event.values[1]);
+                    gyroZAxisSecondBuffer.add(event.values[2]);
+                    break;
+                case Sensor.TYPE_GRAVITY:
+                    gravSensorVals = lowPass(event.values.clone(), gravSensorVals);
+                    gravXAxisValues.add(gravSensorVals[0]);
+                    gravYAxisValues.add(gravSensorVals[1]);
+                    gravZAxisValues.add(gravSensorVals[2]);
 
-                gravXAxisSecondBuffer.add(gravSensorVals[0]);
-                gravYAxisSecondBuffer.add(gravSensorVals[1]);
-                gravZAxisSecondBuffer.add(gravSensorVals[2]);
-                break;
+                    gravXAxisSecondBuffer.add(gravSensorVals[0]);
+                    gravYAxisSecondBuffer.add(gravSensorVals[1]);
+                    gravZAxisSecondBuffer.add(gravSensorVals[2]);
+                    break;
            /* case Sensor.TYPE_ROTATION_VECTOR:
                 lastRotation = event.values.clone();
                 rotvData = msg.toString();
                 rotationVectorList.add(rotvData);
                 break;*/
-        }
+            }
 
 
-        long curTime = System.currentTimeMillis();
+            long curTime = System.currentTimeMillis();
 
-        if ((curTime - lastUpdate) > DELAY){ // only reads data twice per second
-            lastUpdate = curTime;
-            startTime = curTime;
-            //System.out.println("Hello every 5 seconds");
-            checkSpikes(accXAxisValues, accYAxisValues, accZAxisValues,
-                    gravXAxisValues, gravYAxisValues, gravZAxisValues,
-                    gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
+            if ((curTime - lastUpdate) > DELAY){ // only reads data twice per second
+                lastUpdate = curTime;
+                startTime = curTime;
+                //System.out.println("Hello every 5 seconds");
+                checkSpikes(accXAxisValues, accYAxisValues, accZAxisValues,
+                        gravXAxisValues, gravYAxisValues, gravZAxisValues,
+                        gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
 
-            accXAxisCopy = new ArrayList<>(accXAxisValues);
-            accYAxisCopy = new ArrayList<>(accYAxisValues);
-            accZAxisCopy = new ArrayList<>(accZAxisValues);
+                accXAxisCopy = new ArrayList<>(accXAxisValues);
+                accYAxisCopy = new ArrayList<>(accYAxisValues);
+                accZAxisCopy = new ArrayList<>(accZAxisValues);
 
-            gravXAxisCopy = new ArrayList<>(gravXAxisValues);
-            gravYAxisCopy = new ArrayList<>(gravYAxisValues);
-            gravZAxisCopy = new ArrayList<>(gravZAxisValues);
+                gravXAxisCopy = new ArrayList<>(gravXAxisValues);
+                gravYAxisCopy = new ArrayList<>(gravYAxisValues);
+                gravZAxisCopy = new ArrayList<>(gravZAxisValues);
 
-            gyroXAxisCopy = new ArrayList<>(gyroXAxisValues);
-            gyroYAxisCopy = new ArrayList<>(gyroYAxisValues);
-            gyroZAxisCopy = new ArrayList<>(gyroZAxisValues);
+                gyroXAxisCopy = new ArrayList<>(gyroXAxisValues);
+                gyroYAxisCopy = new ArrayList<>(gyroYAxisValues);
+                gyroZAxisCopy = new ArrayList<>(gyroZAxisValues);
 
-            accXAxisValues = new ArrayList<>();
-            accYAxisValues = new ArrayList<>();
-            accZAxisValues = new ArrayList<>();
+                accXAxisValues = new ArrayList<>();
+                accYAxisValues = new ArrayList<>();
+                accZAxisValues = new ArrayList<>();
 
-            gravXAxisValues = new ArrayList<>();
-            gravYAxisValues = new ArrayList<>();
-            gravZAxisValues = new ArrayList<>();
+                gravXAxisValues = new ArrayList<>();
+                gravYAxisValues = new ArrayList<>();
+                gravZAxisValues = new ArrayList<>();
 
-            gyroXAxisValues = new ArrayList<>();
-            gyroYAxisValues = new ArrayList<>();
-            gyroZAxisValues = new ArrayList<>();
-        }
+                gyroXAxisValues = new ArrayList<>();
+                gyroYAxisValues = new ArrayList<>();
+                gyroZAxisValues = new ArrayList<>();
+            }
 
-        if ((curTime - lastUpdateTwo) > 3000){ // only reads data twice per second
-            lastUpdateTwo = curTime;
-            //System.out.println("Hello every 5 seconds");
-            checkSpikes(accXAxisSecondBuffer, accYAxisSecondBuffer, accZAxisSecondBuffer,
-                    gravXAxisSecondBuffer, gravYAxisSecondBuffer, gravZAxisSecondBuffer,
-                    gyroXAxisSecondBuffer, gyroYAxisSecondBuffer, gyroZAxisSecondBuffer);
+            if ((curTime - lastUpdateTwo) > 3000){ // only reads data twice per second
+                lastUpdateTwo = curTime;
+                //System.out.println("Hello every 5 seconds");
+                checkSpikes(accXAxisSecondBuffer, accYAxisSecondBuffer, accZAxisSecondBuffer,
+                        gravXAxisSecondBuffer, gravYAxisSecondBuffer, gravZAxisSecondBuffer,
+                        gyroXAxisSecondBuffer, gyroYAxisSecondBuffer, gyroZAxisSecondBuffer);
 
-            accXAxisValues = new ArrayList<>(compareLists(accXAxisCopy, accXAxisSecondBuffer));
-            accYAxisValues = new ArrayList<>(compareLists(accYAxisCopy, accYAxisSecondBuffer));
-            accZAxisValues = new ArrayList<>(compareLists(accZAxisCopy, accZAxisSecondBuffer));
+                accXAxisValues = new ArrayList<>(compareLists(accXAxisCopy, accXAxisSecondBuffer));
+                accYAxisValues = new ArrayList<>(compareLists(accYAxisCopy, accYAxisSecondBuffer));
+                accZAxisValues = new ArrayList<>(compareLists(accZAxisCopy, accZAxisSecondBuffer));
 
-            gravXAxisValues = new ArrayList<>(compareLists(gravXAxisCopy, gravXAxisSecondBuffer));
-            gravYAxisValues = new ArrayList<>(compareLists(gravYAxisCopy, gravYAxisSecondBuffer));
-            gravZAxisValues = new ArrayList<>(compareLists(gravZAxisCopy, gravZAxisSecondBuffer));
+                gravXAxisValues = new ArrayList<>(compareLists(gravXAxisCopy, gravXAxisSecondBuffer));
+                gravYAxisValues = new ArrayList<>(compareLists(gravYAxisCopy, gravYAxisSecondBuffer));
+                gravZAxisValues = new ArrayList<>(compareLists(gravZAxisCopy, gravZAxisSecondBuffer));
 
-            gyroXAxisValues = new ArrayList<>(compareLists(gyroXAxisCopy, gyroXAxisSecondBuffer));
-            gyroYAxisValues = new ArrayList<>(compareLists(gyroYAxisCopy, gyroYAxisSecondBuffer));
-            gyroZAxisValues = new ArrayList<>(compareLists(gyroZAxisCopy, gyroZAxisSecondBuffer));
+                gyroXAxisValues = new ArrayList<>(compareLists(gyroXAxisCopy, gyroXAxisSecondBuffer));
+                gyroYAxisValues = new ArrayList<>(compareLists(gyroYAxisCopy, gyroYAxisSecondBuffer));
+                gyroZAxisValues = new ArrayList<>(compareLists(gyroZAxisCopy, gyroZAxisSecondBuffer));
 
-            accXAxisCopy = new ArrayList<>();
-            accYAxisCopy = new ArrayList<>();
-            accZAxisCopy = new ArrayList<>();
+                accXAxisCopy = new ArrayList<>();
+                accYAxisCopy = new ArrayList<>();
+                accZAxisCopy = new ArrayList<>();
 
-            gravXAxisCopy = new ArrayList<>();
-            gravYAxisCopy = new ArrayList<>();
-            gravZAxisCopy = new ArrayList<>();
+                gravXAxisCopy = new ArrayList<>();
+                gravYAxisCopy = new ArrayList<>();
+                gravZAxisCopy = new ArrayList<>();
 
-            gyroXAxisCopy = new ArrayList<>();
-            gyroYAxisCopy = new ArrayList<>();
-            gyroZAxisCopy = new ArrayList<>();
+                gyroXAxisCopy = new ArrayList<>();
+                gyroYAxisCopy = new ArrayList<>();
+                gyroZAxisCopy = new ArrayList<>();
 
-            accXAxisSecondBuffer = new ArrayList<>();
-            accYAxisSecondBuffer = new ArrayList<>();
-            accZAxisSecondBuffer = new ArrayList<>();
+                accXAxisSecondBuffer = new ArrayList<>();
+                accYAxisSecondBuffer = new ArrayList<>();
+                accZAxisSecondBuffer = new ArrayList<>();
 
-            gravXAxisSecondBuffer = new ArrayList<>();
-            gravYAxisSecondBuffer = new ArrayList<>();
-            gravZAxisSecondBuffer = new ArrayList<>();
+                gravXAxisSecondBuffer = new ArrayList<>();
+                gravYAxisSecondBuffer = new ArrayList<>();
+                gravZAxisSecondBuffer = new ArrayList<>();
 
-            gyroXAxisSecondBuffer = new ArrayList<>();
-            gyroYAxisSecondBuffer = new ArrayList<>();
-            gyroZAxisSecondBuffer = new ArrayList<>();
-        }
+                gyroXAxisSecondBuffer = new ArrayList<>();
+                gyroYAxisSecondBuffer = new ArrayList<>();
+                gyroZAxisSecondBuffer = new ArrayList<>();
+            }
 
         /*new Thread() {
             public void run() {
@@ -277,6 +280,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
                 } catch (Exception e) {}
             }
         }.start();*/
+        }
     }
 
     static final float ALPHA = 0.25f;
@@ -351,7 +355,7 @@ public class BackgroundDetector extends Service implements SensorEventListener{
             }
         }
 
-        //String test = "Impact";
+        String test = "Impact";
         if (name.equals("Impact")){
             if (alertNotification == null) {
                 alertNotification = new AlertNotification(this);
@@ -470,13 +474,25 @@ public class BackgroundDetector extends Service implements SensorEventListener{
         super.onDestroy();
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean active = sharedPref.getBoolean("active", true);
+        if (!active){
+            // unregister sensor listeners
+            mSensorManager.unregisterListener(this);
+        }
+        else if (active){
+            // check if listener is registered
+            mSensorManager.registerListener(this, mGyroscope, mSensorManager.SENSOR_DELAY_NORMAL);
+            mSensorManager.registerListener(this, mGravitometer, mSensorManager.SENSOR_STATUS_ACCURACY_MEDIUM);
+        }
+    }
+
     public class LocalBinder extends Binder {
         BackgroundDetector getService() {
             return BackgroundDetector.this;
         }
     }
 
-    public static void stopService(){
-        service.stopSelf();
-    }
 }
