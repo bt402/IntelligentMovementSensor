@@ -1,6 +1,7 @@
 package edu.greenwich.intelligentmovementsensor;
 
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -35,6 +36,7 @@ public class HomeView extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.home_view, container, false);
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         final Button startStopBtn = (Button) rootView.findViewById(R.id.startstopBtn);
         statusColourTxt = (TextView) rootView.findViewById(R.id.statusColourTxt);
 

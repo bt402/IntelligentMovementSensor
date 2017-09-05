@@ -1,6 +1,7 @@
 package edu.greenwich.intelligentmovementsensor;
 
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,6 +20,7 @@ public class StatusView extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View statusView = inflater.inflate(R.layout.status_fragment, container, false);
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         TextView statusColourTxtMain = (TextView) statusView.findViewById(R.id.statusColourTxtMain);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());

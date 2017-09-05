@@ -1,6 +1,7 @@
 package edu.greenwich.intelligentmovementsensor;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -69,6 +70,8 @@ public class AddView extends Fragment implements SensorEventListener {
                              Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.record_movement, container, false);
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         final RadioButton newRadioButton = (RadioButton) rootView.findViewById(R.id.newRadioBtn);
         final RadioButton existingRadioButton = (RadioButton) rootView.findViewById(R.id.existinRadioBtn);
         RadioGroup radioGroup = (RadioGroup) rootView.findViewById(R.id.radioButtonGroup);

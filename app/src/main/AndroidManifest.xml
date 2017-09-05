@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <application
@@ -19,10 +18,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".MainActivity" android:theme="@style/AppTheme"/>
+        <activity android:windowSoftInputMode="adjustPan" android:name=".MainActivity" android:theme="@style/AppTheme" android:screenOrientation="landscape" />
         <activity android:name=".CancelAlert"/>
         <activity android:windowSoftInputMode="adjustPan" android:configChanges="orientation|screenSize" android:name=".SimilarityView" android:theme="@style/AppTheme"/>
         <service android:name=".BackgroundDetector"/>
-        <activity android:windowSoftInputMode="adjustPan" android:name=".OlderVersionMovementAdd" android:theme="@style/AppTheme"/>
+        <activity android:windowSoftInputMode="adjustPan" android:name=".OlderVersionMovementAdd" android:theme="@style/AppTheme" android:screenOrientation="landscape"/>
     </application>
 </manifest>
