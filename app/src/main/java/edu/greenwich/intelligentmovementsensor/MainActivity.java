@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-//            copyAssets();
+        copyAssets();
 
         setContentView(R.layout.activity_main);
         intent = new Intent(getApplicationContext(), BackgroundDetector.class);

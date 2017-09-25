@@ -10,9 +10,11 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
+import android.text.format.Time;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -83,19 +85,28 @@ public class SendAlertMessage {
         new AsyncTask<Void, Void, Void>() {
             @Override public Void doInBackground(Void... arg) {
                 try {
+                    String josh="07887396232";
+
+                    Time time = new Time();
+                    time.setToNow();
+
+                    String msg= "Location of the incident: latitude - " + latitude + ", longitude - " + longitude
+                            + "\n Approximate address: " + address + "at " + time.hour + ":" + time.minute + " local time";
+
+
+                    SmsManager smsManager = SmsManager.getDefault();
+                    ArrayList<String> msgArray = smsManager.divideMessage(msg);
+                    String phone = phone_number;
+                    smsManager.sendMultipartTextMessage(josh, null, msgArray, null, null);
+
+
                     GMailSender sender = new GMailSender("terrybrett94@gmail.com", "Presario1");
                     sender.sendMail("This is Subject",
                             "Location of the incident: latitude - " + latitude + ", longitude - " + longitude
-                            + "\n Approximate address: " + address,
+                            + "\n Approximate address: " + address  + "at " + time.hour + ":" + time.minute + " local time",
                             "terrybrett94@gmail.com",
                             email_address);
 
-                    String josh="07887396232";
-                    String msg= "Location of the incident: latitude - " + latitude + ", longitude - " + longitude
-                            + "\n Approximate address: " + address;
-
-                    SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(phone_number, null, msg, null, null);
                 } catch (Exception e) {
                     Log.e("SendMail", e.getMessage(), e);
                 }

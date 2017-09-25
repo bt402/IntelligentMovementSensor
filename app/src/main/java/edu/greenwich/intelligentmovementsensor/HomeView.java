@@ -30,6 +30,7 @@ public class HomeView extends Fragment {
     private Button saveAlertButton;
     private EditText phoneNumber;
     private EditText emailAddress;
+    Button startStopBtn;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,7 +38,7 @@ public class HomeView extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.home_view, container, false);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        final Button startStopBtn = (Button) rootView.findViewById(R.id.startstopBtn);
+        startStopBtn = (Button) rootView.findViewById(R.id.startstopBtn);
         statusColourTxt = (TextView) rootView.findViewById(R.id.statusColourTxt);
 
         saveAlertButton = (Button) rootView.findViewById(R.id.saveAlertButton);
@@ -201,10 +202,12 @@ public class HomeView extends Fragment {
         if (active){
             statusColourTxt.setText("On");
             statusColourTxt.setTextColor(Color.GREEN);
+            startStopBtn.setText("Stop");
         }
         else if(!active){
             statusColourTxt.setText("Off");
             statusColourTxt.setTextColor(Color.RED);
+            startStopBtn.setText("Start");
         }
     }
 }

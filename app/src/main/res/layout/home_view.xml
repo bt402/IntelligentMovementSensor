@@ -155,7 +155,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Alert phone number: "
-                    android:textSize="20dp" />
+                    android:textSize="20dp"
+                    android:id="@+id/textView4" />
 
                 <EditText
                     android:id="@+id/phone_number"
@@ -164,7 +165,8 @@
                     android:layout_alignParentRight="true"
                     android:hint="Enter phone number here"
                     android:text="07887396232"
-                    android:inputType = "number"/>
+                    android:inputType = "number"
+                    android:layout_toEndOf="@+id/textView4" />
             </RelativeLayout>
 
             <LinearLayout
