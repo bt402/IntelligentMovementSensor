@@ -41,36 +41,52 @@ public class SimilarityView extends Fragment {
 
         nameList = recommender.getListOfNames("MovementName");
         int counter = 0;
+        int row = 0;
+        int column = 0;
 
-        for (int i = 0; i < simTable.length; i++) {
+        for (int i = 0; i < nameList.size() + 1; i++) {
             TableRow tableRow = new TableRow(getActivity());
             tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
-            for (int j = 0; j < simTable[i].length; j++) {
-                if (i == 0 || j == 0){
-                   /* if (i == 0 && j == 0){
-                        TextView nameTxt = new TextView(this);
-                        nameTxt.setText("       ");
-                        tableRow.addView(nameTxt);
-                    }else {*/
-                    TextView nameTxt = new TextView(getActivity());
-                    if (counter == nameList.size()) {
-                        counter = 0;
-                    }
-                    nameTxt.setText(nameList.get(counter));
-                    counter++;
-                    tableRow.addView(nameTxt);
-                    //}
-                }
-                else {
-                    EditText text = new EditText(getActivity());
-                    text.setText(simTable[i][j] + "");
-                    //text.setLayoutParams(tableRowParams);
-                    text.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    text.setTextSize(10f);
+            for (int j = 0; j < nameList.size() + 1; j++) {
+                // Add empty space top left corner
+               if (i == 0 && j == 0){
+                   TextView nameTxt = new TextView(getActivity());
+                   nameTxt.setText("       ");
+                   tableRow.addView(nameTxt);
+               }
+               // headers(names) horizontally
+               if (i == 0 && j > 0){
+                   TextView nameTxt = new TextView(getActivity());
+                   if (counter == nameList.size()) {
+                       counter = 0;
+                   }
+                   nameTxt.setText(nameList.get(counter));
+                   counter++;
+                   tableRow.addView(nameTxt);
+               }
+               // headers(names) vertically
+               if (i > 0 && j == 0){
+                   TextView nameTxt = new TextView(getActivity());
+                   if (counter == nameList.size()) {
+                       counter = 0;
+                   }
+                   nameTxt.setText(nameList.get(counter));
+                   counter++;
+                   tableRow.addView(nameTxt);
+               }
+               // similarity
+               if (i >= 1 && j >= 1){
+                   EditText text = new EditText(getActivity());
+                   row = i - 1;
+                   column = j - 1;
+                   text.setText(simTable[row][column] + "");
+                   //text.setLayoutParams(tableRowParams);
+                   text.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                   text.setTextSize(10f);
 
-                    tableRow.addView(text);
-                }
+                   tableRow.addView(text);
+               }
             }
             tableLayout.addView(tableRow);
         }
@@ -105,4 +121,3 @@ public class SimilarityView extends Fragment {
         return rootView;
     }
 }
-

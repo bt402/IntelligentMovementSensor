@@ -348,12 +348,12 @@ public class BackgroundDetector extends Service implements SensorEventListener, 
         }
 
         // create and show notification
-        if (similarity < 0.90f){
+        /*if (similarity < 0.90f){
             // less than 70% certainty
             if (enabledNotifications) {
                 MovementNotification movementNotification = new MovementNotification(this, name, Float.valueOf(accPeak), Float.valueOf(gravPeak), Float.valueOf(gyroPeak));
             }
-        }
+        }*/
 
         String test = "Impact";
         if (name.equals("Impact")){

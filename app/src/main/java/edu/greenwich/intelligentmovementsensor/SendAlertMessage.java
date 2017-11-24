@@ -28,7 +28,7 @@ public class SendAlertMessage {
 
     private static Timer myTimer;
 
-    static String address;
+    static String address = "Not found";
 
     static private String phone_number;
     static private String email_address;
@@ -53,8 +53,10 @@ public class SendAlertMessage {
         }
         catch (SecurityException e){};
 
-        longitude = myLocation.getLongitude();
-        latitude = myLocation.getLatitude();
+        if (myLocation != null) {
+            longitude = myLocation.getLongitude();
+            latitude = myLocation.getLatitude();
+        }
 
         // get the closest address
         try {
@@ -85,7 +87,7 @@ public class SendAlertMessage {
         new AsyncTask<Void, Void, Void>() {
             @Override public Void doInBackground(Void... arg) {
                 try {
-                    String josh="07887396232";
+                    String josh="000000000";
 
                     Time time = new Time();
                     time.setToNow();

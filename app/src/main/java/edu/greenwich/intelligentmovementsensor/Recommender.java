@@ -129,7 +129,7 @@ public class Recommender {
         for(SymbolAttribute symAttr : symAttrs) {
             int indexOuter = symAttrs.indexOf(symAttr); // outer loop
             int indexInner = 0;
-            for (final SymbolAttribute otherAttr : moveDesc.getSymbolAttributes()) {
+            for (SymbolAttribute otherAttr : moveDesc.getSymbolAttributes()) {
                 double similarity = 0d;
                 try {
                     similarity = function.calculateSimilarity(symAttr, otherAttr).getValue();
