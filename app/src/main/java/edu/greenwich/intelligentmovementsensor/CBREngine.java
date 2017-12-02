@@ -129,7 +129,6 @@ public class CBREngine {
             }
             System.out.print("\n");	//console pretty print
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return project;
@@ -155,7 +154,6 @@ public class CBREngine {
             }
             System.out.print("\n");	//console pretty print
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return project;

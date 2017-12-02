@@ -324,13 +324,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 File outFile = new File(outDir, filename);
 
-                out = new FileOutputStream(outFile);
-                copyFile(in, out);
-                in.close();
-                in = null;
-                out.flush();
-                out.close();
-                out = null;
+                if (!outFile.exists()){
+                    out = new FileOutputStream(outFile);
+                    copyFile(in, out);
+                    in.close();
+                    in = null;
+                    out.flush();
+                    out.close();
+                    out = null;
+                }
             } catch(IOException e) {
                 Log.e("tag", "Failed to copy asset file: " + filename, e);
             }

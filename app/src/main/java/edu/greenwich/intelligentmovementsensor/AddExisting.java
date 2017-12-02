@@ -19,7 +19,7 @@ public class AddExisting {
         myConcept = project.getConceptByID(engine.getConceptName());
     }
 
-    public void addCase(String movementName, float accelerometerPeak, float gravitometerPeak, float gyroPeak) {
+    public void addCase(String movementName, float accelerometerPeak, float gravitometerPeak, float gyroPeak, float time) {
         loadengine();
 
         try {
@@ -29,6 +29,7 @@ public class AddExisting {
             i.addAttribute("AccelerometerPeak", accelerometerPeak);
             i.addAttribute("GravitometerPeak", gravitometerPeak);
             i.addAttribute("GyroPeak", gyroPeak);
+            i.addAttribute("Time", time);
             cb.addCase(i);
             project.save();
         }

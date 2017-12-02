@@ -69,7 +69,6 @@ public class Recommender {
             query.addAttribute(gyroPeakDesc, gyroPeakDesc.getAttribute(gyroPeak));
             query.addAttribute(timePassedDesc, timePassedDesc.getAttribute(timePassed));
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

@@ -65,6 +65,9 @@ public class AddView extends Fragment implements SensorEventListener {
     ArrayList<Float> gyroZAxisSecondBuffer = new ArrayList<>();
 
 
+    long startTime;
+    long endTime;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -130,6 +133,8 @@ public class AddView extends Fragment implements SensorEventListener {
                         if (buttonText.equals("Start Recording")){
                             recordBtn.setText("Stop Recording");
 
+                            startTime = System.currentTimeMillis();
+
                             mSensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
 
                             mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -145,6 +150,10 @@ public class AddView extends Fragment implements SensorEventListener {
                             mSensorManager.unregisterListener(AddView.this);
                             recordBtn.setText("Start Recording");
 
+                            endTime = System.currentTimeMillis();
+                            long timePassed = endTime - startTime;
+                            double time = ((double)timePassed/1000);
+
                             String accInputPeak = "" + absoluteSum(accXAxisValues, accYAxisValues, accZAxisValues);
                             String gravInputPeak = "" + absoluteSum(gravXAxisValues, gravYAxisValues, gravZAxisValues);
                             String gyroInputPeak = "" + absoluteSum(gyroXAxisValues, gyroYAxisValues, gyroZAxisValues);
@@ -158,12 +167,12 @@ public class AddView extends Fragment implements SensorEventListener {
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
-                                    addExisting.addCase(name, Float.parseFloat(accInputPeak), Float.parseFloat(gravInputPeak), Float.parseFloat(gyroInputPeak));
+                                    addExisting.addCase(name, Float.parseFloat(accInputPeak), Float.parseFloat(gravInputPeak), Float.parseFloat(gyroInputPeak), Float.parseFloat(""+time));
                                 }
                             }
                             else {
                                 name = dropDown.getSelectedItem().toString();
-                                addExisting.addCase(name, Float.parseFloat(accInputPeak), Float.parseFloat(gravInputPeak), Float.parseFloat(gyroInputPeak));
+                                addExisting.addCase(name, Float.parseFloat(accInputPeak), Float.parseFloat(gravInputPeak), Float.parseFloat(gyroInputPeak), Float.parseFloat(""+time));
                             }
 
                             Toast toast = Toast.makeText(getContext(), "Movement added!", Toast.LENGTH_LONG);

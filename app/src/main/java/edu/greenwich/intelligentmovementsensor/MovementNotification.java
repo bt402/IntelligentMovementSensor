@@ -11,13 +11,14 @@ import android.support.v4.app.NotificationCompat;
 public class MovementNotification {
 
     String name;
-    float accelerometerPeak, gravitometerPeak, gyroPeak;
+    float accelerometerPeak, gravitometerPeak, gyroPeak, time;
 
-    public MovementNotification(Context context, String name, float accelerometerPeak, float gravitometerPeak, float gyroPeak){
+    public MovementNotification(Context context, String name, float accelerometerPeak, float gravitometerPeak, float gyroPeak, float time){
         this.name = name;
         this.accelerometerPeak = accelerometerPeak;
         this.gravitometerPeak = gravitometerPeak;
         this.gyroPeak = gyroPeak;
+        this.time = time;
 
         showNotification(context);
     }
@@ -30,6 +31,7 @@ public class MovementNotification {
         positiveResponseIntent.putExtra("accelerometerPeak", accelerometerPeak);
         positiveResponseIntent.putExtra("gravitometerPeak", gravitometerPeak);
         positiveResponseIntent.putExtra("gyroPeak", gyroPeak);
+        positiveResponseIntent.putExtra("Time", time);
         PendingIntent positivePendingIntent = PendingIntent.getActivity(context, 1, positiveResponseIntent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -39,6 +41,7 @@ public class MovementNotification {
         negativeResponseIntent.putExtra("accelerometerPeak", accelerometerPeak);
         negativeResponseIntent.putExtra("gravitometerPeak", gravitometerPeak);
         negativeResponseIntent.putExtra("gyroPeak", gyroPeak);
+        negativeResponseIntent.putExtra("Time", time);
 
         PendingIntent negativePendingIntent = PendingIntent.getActivity(context, 1, negativeResponseIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -64,6 +67,8 @@ public class MovementNotification {
             nid.putExtra("accelerometerPeak", accelerometerPeak);
             nid.putExtra("gravitometerPeak", gravitometerPeak);
             nid.putExtra("gyroPeak", gyroPeak);
+            nid.putExtra("Time", time);
+
             PendingIntent ci = PendingIntent.getActivity(context, 2, nid,
                     PendingIntent.FLAG_CANCEL_CURRENT);
 

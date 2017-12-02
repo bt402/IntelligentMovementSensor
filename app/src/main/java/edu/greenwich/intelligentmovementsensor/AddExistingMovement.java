@@ -24,11 +24,12 @@ public class AddExistingMovement extends Activity{
         float accelerometerPeak = notificationIntent.getFloatExtra("accelerometerPeak", 0f);
         float gravitometerPeak = notificationIntent.getFloatExtra("gravitometerPeak", 0f);
         float gyroPeak = notificationIntent.getFloatExtra("gyroPeak", 0f);
+        float time = notificationIntent.getFloatExtra("Time", 0f);
 
         String[] split = movementName.split("=");
 
         AddExisting addExisiting = new AddExisting();
-        addExisiting.addCase(split[1], accelerometerPeak, gravitometerPeak, gyroPeak);
+        addExisiting.addCase(split[1], accelerometerPeak, gravitometerPeak, gyroPeak, time);
         spinner.setVisibility(View.GONE);
         finish();
     }

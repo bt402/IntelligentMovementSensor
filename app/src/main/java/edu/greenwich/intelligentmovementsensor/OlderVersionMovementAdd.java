@@ -40,6 +40,7 @@ public class OlderVersionMovementAdd extends AppCompatActivity{
         final float accelerometerPeak = notificationIntent.getFloatExtra("accelerometerPeak", 0f);
         final float gravitometerPeak = notificationIntent.getFloatExtra("gravitometerPeak", 0f);
         final float gyroPeak = notificationIntent.getFloatExtra("gyroPeak", 0f);
+        final float time = notificationIntent.getFloatExtra("Time", 0f);
         layout = (LinearLayout) findViewById(R.id.recScreenLinearLayout2);
 
         final AddNew addNew = new AddNew();
@@ -113,7 +114,7 @@ public class OlderVersionMovementAdd extends AppCompatActivity{
                         if (!exists) {
                             addNew.addCase(newMovementNameText.getText().toString());
                             AddExisting addExisiting = new AddExisting();
-                            addExisiting.addCase(newMovementNameText.getText().toString(), accelerometerPeak, gravitometerPeak, gyroPeak);
+                            addExisiting.addCase(newMovementNameText.getText().toString(), accelerometerPeak, gravitometerPeak, gyroPeak, time);
                             Toast.makeText(getApplicationContext(), "Data added!",
                                     Toast.LENGTH_LONG).show();
                             finish();
@@ -128,7 +129,7 @@ public class OlderVersionMovementAdd extends AppCompatActivity{
                 }
                 else if (existingRadioButton.isChecked()){
                     AddExisting addExisiting = new AddExisting();
-                    addExisiting.addCase(movementName, accelerometerPeak, gravitometerPeak, gyroPeak);
+                    addExisiting.addCase(movementName, accelerometerPeak, gravitometerPeak, gyroPeak, time);
                     Toast.makeText(getApplicationContext(), "Data added!",
                             Toast.LENGTH_LONG).show();
                     finish();

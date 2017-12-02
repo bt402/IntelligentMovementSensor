@@ -313,6 +313,7 @@ public class BackgroundDetector extends Service implements SensorEventListener, 
         if (timePassed > 10L) {
             System.out.println("Time: " + time);
         }
+
         float timeFloat = Float.parseFloat("" + time);
         String[] split = recommender.solveOuery(inputMovement,Float.valueOf(accInputPeak), Float.valueOf(gravInputPeak), Float.valueOf(gyroInputPeak), Integer.valueOf(numberOfCases), Float.valueOf(timeFloat)).split(",");
         recommender.similarityTable("MovementName", "NameSim");
